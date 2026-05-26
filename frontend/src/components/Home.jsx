@@ -1106,22 +1106,22 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 7. RECEPTION & PUBLIC SERVICE SECTION - TOTAL OVERHAUL */}
-      <section className="public-service-overhaul" style={{ padding: '80px 0', background: '#07101e', color: 'white', position: 'relative', overflow: 'hidden' }}>
-        {/* Glow Effects */}
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none' }} />
+      {/* 7. RECEPTION & PUBLIC SERVICE SECTION - CLAIR & PREMIUM */}
+      <section className="public-service-overhaul" style={{ padding: '80px 0', background: 'linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%)', color: '#1e293b', position: 'relative', overflow: 'hidden' }}>
+        {/* Glow Effects (Soft Green) */}
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.04) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(16,185,129,0.03) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none' }} />
 
         <div className="h-container">
           {/* Header Row */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '50px' }}>
-            <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', padding: '6px 16px', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ background: 'rgba(16,185,129,0.08)', color: '#10b981', border: '1px solid rgba(16,185,129,0.15)', padding: '6px 16px', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <Shield size={13} /> Institutionnel & Administration
             </span>
-            <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: 'white', marginTop: '16px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#0d4a3e', marginTop: '16px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
               Services Municipaux & <span style={{ color: '#10b981' }}>Administration</span>
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '1rem', marginTop: '12px', maxWidth: '700px', lineHeight: 1.6, margin: '12px auto 0 auto' }}>
+            <p style={{ color: '#475569', fontSize: '1rem', marginTop: '12px', maxWidth: '700px', lineHeight: 1.6, margin: '12px auto 0 auto' }}>
               La Mairie de Dembéni s'engage dans la modernisation de son administration pour offrir un service public de proximité rapide, transparent et accessible à tous les citoyens.
             </p>
           </div>
@@ -1129,36 +1129,36 @@ const Home = () => {
           {/* Main Layout Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'stretch', marginBottom: '50px' }}>
             {/* Left Column: Image Composition */}
-            <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', minHeight: '380px', display: 'flex', flexDirection: 'column', justifySelf: 'stretch', justifyContent: 'flex-end', padding: '40px', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+            <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', minHeight: '380px', display: 'flex', flexDirection: 'column', justifySelf: 'stretch', justifyContent: 'flex-end', padding: '40px', border: '1px solid rgba(16,185,129,0.15)', boxShadow: '0 20px 40px -15px rgba(13,74,62,0.1)' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: "url('https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80&w=1200') center/cover", transition: 'transform 0.5s ease' }} />
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(7,16,30,0.95) 0%, rgba(7,16,30,0.4) 60%, rgba(7,16,30,0.1) 100%)' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(13,74,62,0.95) 0%, rgba(13,74,62,0.4) 60%, rgba(0,0,0,0) 100%)' }} />
               
               {/* Badges on top of image */}
               <div style={{ position: 'absolute', top: '24px', left: '24px', display: 'flex', gap: '8px', zIndex: 3 }}>
                 <span style={{ background: '#10b981', color: 'white', padding: '5px 12px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 800 }}>✓ SERVICE RAPIDE</span>
-                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 800 }}>🏠 ACCUEIL PHYSIQUE</span>
+                <span style={{ background: 'rgba(255,255,255,0.2)', color: 'white', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 800 }}>🏠 ACCUEIL PHYSIQUE</span>
               </div>
 
               {/* Content on Image */}
               <div style={{ position: 'relative', zIndex: 2, textAlign: 'left' }}>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 850, color: 'white', marginBottom: '10px' }}>Guichet Unique & Accueil Citoyens</h3>
-                <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ color: '#e2e8f0', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
                   Nos agents vous reçoivent en mairie annexe ou principale pour faciliter toutes vos démarches civiles et d'urbanisme. Une administration à l'écoute de chaque projet familial ou entrepreneurial.
                 </p>
                 
                 {/* Micro Stats inside image */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '20px' }}>
                   <div>
-                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#10b981', display: 'block' }}>15 min</span>
-                    <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Attente Moyenne</span>
+                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#4ade80', display: 'block' }}>15 min</span>
+                    <span style={{ fontSize: '0.68rem', color: '#cbd5e1', textTransform: 'uppercase', fontWeight: 700 }}>Attente Moyenne</span>
                   </div>
                   <div>
-                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#10b981', display: 'block' }}>96%</span>
-                    <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Satisfaction</span>
+                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#4ade80', display: 'block' }}>96%</span>
+                    <span style={{ fontSize: '0.68rem', color: '#cbd5e1', textTransform: 'uppercase', fontWeight: 700 }}>Satisfaction</span>
                   </div>
                   <div>
-                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#10b981', display: 'block' }}>12k +</span>
-                    <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Démarches / an</span>
+                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#4ade80', display: 'block' }}>12k +</span>
+                    <span style={{ fontSize: '0.68rem', color: '#cbd5e1', textTransform: 'uppercase', fontWeight: 700 }}>Démarches / an</span>
                   </div>
                 </div>
               </div>
@@ -1168,56 +1168,56 @@ const Home = () => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '20px' }}>
               
               {/* Horaires et Informations Pratiques Card */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '30px', textAlign: 'left' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: 'white', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ background: '#ffffff', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '24px', padding: '30px', textAlign: 'left', boxShadow: '0 10px 30px rgba(13,74,62,0.02)' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: '#0d4a3e', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Clock size={18} style={{ color: '#10b981' }} /> Horaires d'ouverture de la Mairie
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px', fontSize: '0.85rem' }}>
-                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>Lundi au Jeudi</span>
-                    <span style={{ color: 'white', fontWeight: 700 }}>7h30 - 15h30 (Continu)</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(16, 185, 129, 0.08)', paddingBottom: '8px', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#475569', fontWeight: 600 }}>Lundi au Jeudi</span>
+                    <span style={{ color: '#0d4a3e', fontWeight: 700 }}>7h30 - 15h30 (Continu)</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px', fontSize: '0.85rem' }}>
-                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>Vendredi</span>
-                    <span style={{ color: 'white', fontWeight: 700 }}>7h30 - 11h30 (Matinée uniquement)</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(16, 185, 129, 0.08)', paddingBottom: '8px', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#475569', fontWeight: 600 }}>Vendredi</span>
+                    <span style={{ color: '#0d4a3e', fontWeight: 700 }}>7h30 - 11h30 (Matinée uniquement)</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>Samedi & Dimanche</span>
+                    <span style={{ color: '#475569', fontWeight: 600 }}>Samedi & Dimanche</span>
                     <span style={{ color: '#ef4444', fontWeight: 700 }}>Fermé</span>
                   </div>
                 </div>
                 
                 {/* Note */}
-                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', padding: '12px', borderRadius: '12px', fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.1)', padding: '12px', borderRadius: '12px', fontSize: '0.78rem', color: '#334155', lineHeight: 1.4 }}>
                   <span style={{ color: '#10b981', fontSize: '1rem' }}>💡</span>
                   <span><strong>Démarches en ligne :</strong> Vos demandes d'actes d'état civil, CNI et Passeports restent accessibles 24h/24 via l'espace citoyen sécurisé.</span>
                 </div>
               </div>
 
               {/* Contact direct et Numéros Utiles */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '30px', textAlign: 'left' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: 'white', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ background: '#ffffff', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '24px', padding: '30px', textAlign: 'left', boxShadow: '0 10px 30px rgba(13,74,62,0.02)' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: '#0d4a3e', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Phone size={18} style={{ color: '#10b981' }} /> Contacts & Numéros Utiles
                 </h3>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 800, display: 'block', marginBottom: '4px' }}>Standard Mairie</span>
-                    <a href="tel:0269630115" style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', textDecoration: 'none', display: 'block', marginBottom: '4px' }}>02 69 63 01 15</a>
+                  <div style={{ background: 'rgba(16,185,129,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(16,185,129,0.08)' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, display: 'block', marginBottom: '4px' }}>Standard Mairie</span>
+                    <a href="tel:0269630115" style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0d4a3e', textDecoration: 'none', display: 'block', marginBottom: '4px' }}>02 69 63 01 15</a>
                     <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Appel non surtaxé</span>
                   </div>
                   
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 800, display: 'block', marginBottom: '4px' }}>Courriel Officiel</span>
+                  <div style={{ background: 'rgba(16,185,129,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(16,185,129,0.08)' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, display: 'block', marginBottom: '4px' }}>Courriel Officiel</span>
                     <a href="mailto:contact@dembeni.fr" style={{ fontSize: '0.95rem', fontWeight: 900, color: '#10b981', textDecoration: 'none', display: 'block', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>contact@dembeni.fr</a>
                     <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Réponse sous 48h</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '16px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', padding: '12px', borderRadius: '12px', fontSize: '0.8rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '16px', background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px', borderRadius: '12px', fontSize: '0.8rem' }}>
                   <span style={{ color: '#ef4444', fontSize: '1.1rem', fontWeight: 900 }}>🚨</span>
-                  <div style={{ color: '#fca5a5' }}>
-                    <strong>Alerte Sécurité Municipale :</strong> Pour toute urgence technique hors horaires, composez le <strong>02 69 63 05 50</strong>.
+                  <div style={{ color: '#991b1b' }}>
+                    <strong>Alerte Sécurité Municipale :</strong> Pour toute urgence technique hors horaires, composez le <strong style={{ color: '#991b1b' }}>02 69 63 05 50</strong>.
                   </div>
                 </div>
               </div>
@@ -1275,8 +1275,8 @@ const Home = () => {
                 key={idx} 
                 className="service-premium-card" 
                 style={{ 
-                  background: 'rgba(255,255,255,0.03)', 
-                  border: '1px solid rgba(255,255,255,0.06)', 
+                  background: '#ffffff', 
+                  border: '1px solid rgba(16, 185, 129, 0.12)', 
                   borderRadius: '20px', 
                   padding: '28px', 
                   display: 'flex', 
@@ -1285,7 +1285,8 @@ const Home = () => {
                   height: '100%', 
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   position: 'relative',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  boxShadow: '0 10px 30px rgba(13,74,62,0.01)'
                 }}
               >
                 {/* Card Glow Effect */}
@@ -1293,19 +1294,19 @@ const Home = () => {
                 
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <div style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', width: '46px', height: '46px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: 'rgba(16,185,129,0.08)', color: '#10b981', width: '46px', height: '46px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {srv.icon}
                     </div>
-                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.65rem', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.1)', color: '#16a34a', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>
                       {srv.badge}
                     </span>
                   </div>
                   
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', marginBottom: '10px' }}>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0d4a3e', marginBottom: '10px' }}>
                     {srv.title}
                   </h4>
                   
-                  <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
                     {srv.desc}
                   </p>
                 </div>
@@ -1358,9 +1359,9 @@ const Home = () => {
             <Link 
               to="/demarches" 
               style={{ 
-                background: 'rgba(255,255,255,0.06)', 
-                color: 'white', 
-                border: '1px solid rgba(255,255,255,0.12)', 
+                background: '#ffffff', 
+                color: '#10b981', 
+                border: '1px solid rgba(16,185,129,0.25)', 
                 padding: '14px 28px', 
                 borderRadius: '12px', 
                 fontSize: '0.9rem', 
@@ -1369,7 +1370,8 @@ const Home = () => {
                 display: 'inline-flex', 
                 alignItems: 'center', 
                 gap: '8px',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
               }}
               className="btn-action-secondary-glow"
             >
@@ -1380,7 +1382,7 @@ const Home = () => {
               to="/contact" 
               style={{ 
                 background: 'transparent', 
-                color: '#cbd5e1', 
+                color: '#475569', 
                 padding: '14px 28px', 
                 borderRadius: '12px', 
                 fontSize: '0.9rem', 
