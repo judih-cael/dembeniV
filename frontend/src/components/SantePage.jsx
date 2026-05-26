@@ -1,0 +1,611 @@
+import React, { useState } from 'react';
+import { 
+  Heart, Shield, Activity, Phone, Calendar, Users, 
+  Award, Info, MapPin, Clock, ArrowRight, BookOpen, 
+  Sparkles, HeartHandshake, Smile, CheckCircle, X, Mail
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const SantePage = () => {
+  const [selectedService, setSelectedService] = useState(null);
+
+  const medicalServices = [
+    {
+      title: "Centre de santé communal",
+      desc: "Notre établissement principal de soins de proximité pour tous les administrés de Dembéni.",
+      fullDesc: "Le Centre de Santé Communal de Dembéni est le pilier de l'accès aux soins de premier recours sur notre territoire. Conçu pour répondre aux besoins quotidiens des familles, il rassemble des praticiens de confiance et propose des consultations généralistes ainsi que des soins infirmiers programmés ou urgents.",
+      icon: <Activity size={24} />,
+      img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800",
+      category: "Soins",
+      location: "Rue de la Mairie, Tsararano, Dembéni",
+      hours: "Lundi au Vendredi : 7h30 - 16h30 | Samedi : 8h00 - 12h00",
+      phone: "02 69 63 01 15",
+      email: "centre.sante@dembeni.fr",
+      benefits: [
+        "Consultations conventionnées secteur 1 sans dépassement",
+        "Tiers-payant intégral sur présentation de la carte vitale",
+        "Équipe pluridisciplinaire qualifiée de proximité"
+      ]
+    },
+    {
+      title: "Consultations médicales",
+      desc: "Des consultations de médecine générale accessibles sur rendez-vous ou permanences.",
+      fullDesc: "Afin de garantir un suivi médical continu pour chaque habitant, nous organisons des permanences de médecine générale quotidiennes. Nos médecins partenaires vous accueillent pour les pathologies aiguës, le suivi des maladies chroniques, et la délivrance de certificats d'aptitude.",
+      icon: <Users size={24} />,
+      img: "https://images.unsplash.com/photo-1584515901387-a7a1a63376b6?auto=format&fit=crop&q=80&w=800",
+      category: "Soins",
+      location: "Dispensaire d'Iloni, Dembéni",
+      hours: "Lundi, Mardi et Jeudi : 8h00 - 17h00 | Mercredi et Vendredi : 8h00 - 13h00",
+      phone: "02 69 63 99 22",
+      email: "consultations@dembeni.fr",
+      benefits: [
+        "Consultations avec ou sans rendez-vous en matinée",
+        "Médecins généralistes permanents et spécialistes vacataires",
+        "Proximité immédiate avec les réseaux de transport en commun"
+      ]
+    },
+    {
+      title: "Assistance médicale & CMU",
+      desc: "Aide à la constitution des dossiers administratifs d'accès aux soins de santé publique.",
+      fullDesc: "L'accès aux droits est indispensable pour se soigner correctement. Nos conseillers du Centre Communal d'Action Sociale (CCAS) vous guident pas à pas dans l'ouverture de votre Complémentaire Santé Solidaire (ex-CMU) et de l'Aide Médicale de l'État (AME), afin de lever toute barrière financière aux soins.",
+      icon: <Shield size={24} />,
+      img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800",
+      category: "Social",
+      location: "Pôle Social & CCAS, Mairie de Dembéni",
+      hours: "Lundi au Jeudi : 8h00 - 15h30 | Vendredi : 8h00 - 11h30",
+      phone: "02 69 63 11 12",
+      email: "ccas.droits@dembeni.fr",
+      benefits: [
+        "Aide gratuite à la rédaction et numérisation des dossiers",
+        "Liaison directe et simplifiée avec la CSSM (Sécurité Sociale)",
+        "Traduction et médiation culturelle disponibles sur place"
+      ]
+    },
+    {
+      title: "Campagnes de vaccination",
+      desc: "Organisation de séances de vaccination régulières pour les enfants, adultes et voyageurs.",
+      fullDesc: "La couverture vaccinale est essentielle pour immuniser durablement notre communauté face aux maladies infectieuses. La commune organise de fréquentes journées de vaccination gratuites, en conformité avec le calendrier vaccinal national, ouvertes à tous sans rendez-vous préalable.",
+      icon: <CheckCircle size={24} />,
+      img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&q=80&w=800",
+      category: "Prévention",
+      location: "Dispensaire Central et Écoles Primaires de Dembéni",
+      hours: "Permanences tous les Mercredis : 8h30 - 16h00",
+      phone: "02 69 63 01 15",
+      email: "prevention.sante@dembeni.fr",
+      benefits: [
+        "Vaccins obligatoires fournis et administrés gratuitement",
+        "Suivi et mise à jour personnalisée du carnet de santé",
+        "Sensibilisation et réponses claires aux questions des parents"
+      ]
+    },
+    {
+      title: "Sensibilisation sanitaire",
+      desc: "Ateliers et stands d'information sur la nutrition, l'hygiène de vie et l'activité sportive.",
+      fullDesc: "Parce que préserver sa santé commence par l'adoption de bons comportements, nos éducateurs de santé organisent régulièrement des ateliers interactifs. Au programme : nutrition saine à base de fruits et légumes locaux, prévention du diabète et encouragement de l'activité physique.",
+      icon: <BookOpen size={24} />,
+      img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800",
+      category: "Prévention",
+      location: "MJC d'Ongojou, Dembéni",
+      hours: "Ateliers thématiques les Samedis : 9h00 - 12h00",
+      phone: "02 69 63 44 10",
+      email: "ateliers.sante@dembeni.fr",
+      benefits: [
+        "Ateliers interactifs, dégustations et bilans corporels gratuits",
+        "Événements ouverts à tous les âges (enfants, adultes, aînés)",
+        "Documentation pratique et kits d'accompagnement offerts"
+      ]
+    },
+    {
+      title: "Santé maternelle et infantile",
+      desc: "Suivi personnalisé pré et post-natal par des infirmiers diplômés et des sages-femmes dédiées.",
+      fullDesc: "Le service PMI (Protection Maternelle et Infantile) de Dembéni propose un accompagnement chaleureux et hautement professionnel pour les femmes enceintes et les jeunes parents. De la grossesse aux six ans de l'enfant, nos infirmières puéricultrices et sages-femmes veillent à la santé physique et affective de votre foyer.",
+      icon: <Heart size={24} />,
+      img: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&q=80&w=800",
+      category: "Famille",
+      location: "Centre PMI d'Iloni, Dembéni",
+      hours: "Lundi au Vendredi : 8h00 - 16h00",
+      phone: "02 69 63 22 18",
+      email: "pmi.iloni@dembeni.fr",
+      benefits: [
+        "Consultations médicales de suivi de grossesse gratuites",
+        "Pesée des nourrissons, conseils d'allaitement et de sevrage",
+        "Ateliers d'éveil précoce et de soutien à la parentalité"
+      ]
+    },
+    {
+      title: "Accompagnement des aînés",
+      desc: "Visites à domicile régulières, portage de repas et soutien à la mobilité pour les personnes âgées.",
+      fullDesc: "Garantir le maintien à domicile et lutter contre l'isolement de nos aînés est une priorité humaine fondamentale. Le CCAS déploie quotidiennement des auxiliaires de vie pour la livraison de repas équilibrés, l'aide aux courses et les visites de courtoisie régulières.",
+      icon: <HeartHandshake size={24} />,
+      img: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=80&w=800",
+      category: "Aînés",
+      location: "Déplacements à domicile dans toute la commune (Dembéni, Tsararano, Iloni, Ongojou)",
+      hours: "Interventions 7j/7 : 7h30 - 19h00",
+      phone: "02 69 63 11 12",
+      email: "solidarite.aines@dembeni.fr",
+      benefits: [
+        "Portage de repas sains adaptés aux régimes médicaux",
+        "Aide personnalisée aux gestes de la vie quotidienne",
+        "Activités culturelles et sorties collectives mensuelles"
+      ]
+    },
+    {
+      title: "Assistance psychologique",
+      desc: "Écoute bienveillante et soutien psychologique individuel sur rendez-vous avec nos professionnels.",
+      fullDesc: "Parce que la santé mentale est tout aussi importante que la santé physique, la commune met à votre disposition un service d'écoute et de soutien psychologique gratuit. Dans un cadre strictement confidentiel, nos psychologues cliniciens vous épaulent face aux épreuves de la vie.",
+      icon: <Smile size={24} />,
+      img: "https://images.unsplash.com/photo-1527137341206-1a2ab8144b56?auto=format&fit=crop&q=80&w=800",
+      category: "Social",
+      location: "Espace Solidarité, Tsararano",
+      hours: "Mardi et Jeudi : 9h00 - 17h00 | Sur rendez-vous uniquement",
+      phone: "02 69 63 11 15",
+      email: "soutien.psy@dembeni.fr",
+      benefits: [
+        "Cadre d'écoute neutre, bienveillant et 100% confidentiel",
+        "Prise en charge individuelle ou entretiens familiaux",
+        "Accès gratuit sans conditions de ressources"
+      ]
+    },
+    {
+      title: "Hygiène & Salubrité publique",
+      desc: "Actions de désinsectisation contre la dengue et contrôle de la qualité sanitaire de l'eau.",
+      fullDesc: "La protection contre les épidémies passe par un environnement propre et sécurisé. Nos équipes d'intervention luttent activement contre la dengue et le paludisme en éliminant les gîtes larvaires et en effectuant des pulvérisations ciblées, tout en veillant à la salubrité du réseau d'eau potable.",
+      icon: <Sparkles size={24} />,
+      img: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+      category: "Environnement",
+      location: "Services Techniques Municipaux, Dembéni",
+      hours: "Lundi au Vendredi : 7h00 - 15h00 | Astreintes d'urgence le week-end",
+      phone: "02 69 63 05 50",
+      email: "salubrite@dembeni.fr",
+      benefits: [
+        "Traitement et élimination gratuite des gîtes dans les cours privées",
+        "Distribution de kits anti-moustiques aux personnes sensibles",
+        "Analyses et contrôle quotidien du réseau de distribution d'eau"
+      ]
+    }
+  ];
+
+  const solidarityAids = [
+    {
+      title: "Aide alimentaire d'urgence",
+      desc: "Distribution de colis alimentaires pour les foyers les plus modestes de Dembéni.",
+      icon: <HeartHandshake size={20} />
+    },
+    {
+      title: "Soutien scolaire solidaire",
+      desc: "Dispositif d'aide aux devoirs gratuit pour favoriser la réussite éducative de tous nos jeunes.",
+      icon: <BookOpen size={20} />
+    },
+    {
+      title: "Accompagnement administratif",
+      desc: "Assistance pour les démarches CAF, sécurité sociale et retraite.",
+      icon: <Shield size={20} />
+    },
+    {
+      title: "Aide au logement social",
+      desc: "Orientation et appui dans l'attribution de logements adaptés.",
+      icon: <MapPin size={20} />
+    }
+  ];
+
+  const preventionCampaigns = [
+    {
+      date: "25 Mai 2026",
+      title: "Journée de Dépistage du Diabète",
+      loc: "📍 MJC de Tsararano",
+      desc: "Tests de glycémie gratuits et conseils personnalisés par des nutritionnistes qualifiés.",
+      type: "Diabète"
+    },
+    {
+      date: "08 Juin 2026",
+      title: "Opération Stop Dengue",
+      loc: "📍 Quartiers de Dembéni et Iloni",
+      desc: "Distribution de répulsifs, destruction de gîtes larvaires et ateliers de sensibilisation.",
+      type: "Dengue"
+    },
+    {
+      date: "15 Juin 2026",
+      title: "Vaccination Infantile",
+      loc: "📍 Dispensaire Central de Dembéni",
+      desc: "Mise à jour gratuite des vaccins obligatoires pour les enfants de 0 à 6 ans.",
+      type: "Vaccination"
+    }
+  ];
+
+  const emergencyContacts = [
+    { name: "SAMU / Urgence Médicale", number: "15", desc: "Pour toute détresse vitale urgente.", color: "#ef4444" },
+    { name: "Sapeurs-Pompiers", number: "18", desc: "Incendies, accidents de la route et secours.", color: "#f97316" },
+    { name: "Gendarmerie Nationale", number: "17", desc: "Sécurité publique et urgences policières.", color: "#3b82f6" },
+    { name: "Maison Médicale de Dembéni", number: "02 69 63 12 34", desc: "Consultations et soins généraux.", color: "#10b981" }
+  ];
+
+  const communityEvents = [
+    {
+      title: "Atelier Nutrition & Cuisine Locale",
+      desc: "Apprenez à cuisiner les produits maraîchers de Mayotte de façon saine et équilibrée.",
+      date: "Chaque samedi matin",
+      loc: "Maison des Associations",
+      img: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=800"
+    },
+    {
+      title: "Randonnée Santé & Bien-être",
+      desc: "Une marche collective douce à travers les sentiers forestiers pour stimuler l'activité physique.",
+      date: "Prochain départ le 30 mai",
+      loc: "Départ Mairie",
+      img: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80&w=800"
+    }
+  ];
+
+  const galleryImages = [
+    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1579684389782-64d84b5e902a?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=800"
+  ];
+
+  return (
+    <div className="sante-page-wrapper">
+      
+      {/* 1. HERO SECTION */}
+      <section className="sante-hero">
+        <div className="sante-hero-bg" />
+        <div className="sante-hero-overlay" />
+        <div className="sante-hero-content">
+          <span className="sante-badge"><Heart size={14} /> Solidarité & Santé</span>
+          <h1 className="sante-hero-title">
+            Une commune engagée pour le <span>bien-être</span> de tous
+          </h1>
+          <p className="sante-hero-subtitle">
+            Dembéni met en place des services sociaux, d'accompagnement solidaire et de soins de santé de proximité pour accompagner chaque habitant à chaque étape de la vie.
+          </p>
+          <div className="sante-hero-btns">
+            <a href="#urgences" className="btn-sante-primary">Urgences & Contacts</a>
+            <a href="#services" className="btn-sante-secondary">Nos services sociaux</a>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. STATS & INTRO SUMMARY */}
+      <section className="sante-intro-stats">
+        <div className="h-container">
+          <div className="sante-intro-grid">
+            <div className="sante-intro-text">
+              <span className="section-tag-simple"><HeartHandshake size={14} /> Dembéni Solidaire</span>
+              <h2>L'humain au cœur de nos priorités municipales</h2>
+              <p>
+                Parce que le progrès de notre territoire repose sur la santé et l'inclusion de tous ses citoyens, nos services administratifs et nos équipes médico-sociales collaborent quotidiennement pour répondre avec agilité aux besoins des familles, des jeunes et de nos aînés.
+              </p>
+              <blockquote className="sante-quote">
+                "La solidarité est le cœur battant de notre commune. À Dembéni, aucun citoyen n'est laissé pour compte."
+                <span>— L'équipe municipale de Dembéni</span>
+              </blockquote>
+            </div>
+
+            <div className="sante-stats-grid">
+              <div className="sante-stat-card">
+                <h3>1500+</h3>
+                <p>Familles accompagnées</p>
+              </div>
+              <div className="sante-stat-card">
+                <h3>12</h3>
+                <p>Campagnes de santé par an</p>
+              </div>
+              <div className="sante-stat-card">
+                <h3>8</h3>
+                <p>Ateliers de prévention mensuels</p>
+              </div>
+              <div className="sante-stat-card">
+                <h3>100%</h3>
+                <p>Écoute active et soutien social</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. HEALTH SERVICES SECTION */}
+      <section id="services" className="sante-services-section">
+        <div className="h-container">
+          <div className="section-header">
+            <span className="section-tag"><Activity size={14} /> Services médico-sociaux</span>
+            <h2 className="section-title-modern">Des soins de <span>santé de proximité</span></h2>
+            <p className="section-subtitle-modern">Explorez l'éventail de prestations médicales et d'assistances mises en place par la commune de Dembéni.</p>
+          </div>
+
+          <div className="sante-services-grid">
+            {medicalServices.map((service, index) => (
+              <div key={index} className="sante-service-card">
+                <div className="sante-card-img-wrap">
+                  <img src={service.img} alt={service.title} className="sante-card-img" />
+                  <span className="sante-card-category-badge">{service.category}</span>
+                </div>
+                <div className="sante-card-content">
+                  <div className="sante-card-icon-title">
+                    <span className="sante-card-icon">{service.icon}</span>
+                    <h3>{service.title}</h3>
+                  </div>
+                  <p>{service.desc}</p>
+                  <button 
+                    className="sante-card-btn-more"
+                    onClick={() => setSelectedService(service)}
+                  >
+                    En savoir plus <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SOLIDARITY SECTION */}
+      <section className="sante-solidarity-section">
+        <div className="h-container">
+          <div className="sante-solidarity-layout">
+            <div className="sante-solidarity-left">
+              <span className="section-tag-simple"><HeartHandshake size={14} /> Action Sociale CCAS</span>
+              <h2>Soutenir chacun d'entre vous dans les moments clés</h2>
+              <p>
+                Le Centre Communal d'Action Sociale (CCAS) de Dembéni intervient en faveur des habitants en situation de vulnérabilité. Qu'il s'agisse d'une aide ponctuelle ou d'un suivi social durable, nos agents vous accueillent avec bienveillance pour vous conseiller et vous guider.
+              </p>
+              <div className="sante-solidarity-bullets">
+                {solidarityAids.map((aid, idx) => (
+                  <div key={idx} className="sante-bullet-item">
+                    <span className="bullet-icon-wrap">{aid.icon}</span>
+                    <div>
+                      <h4>{aid.title}</h4>
+                      <p>{aid.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="sante-solidarity-right">
+              <img 
+                src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=800" 
+                alt="Solidarité humaine" 
+                className="solidarity-large-img"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. CAMPAIGNS & PREVENTION */}
+      <section className="sante-prevention-section">
+        <div className="h-container">
+          <div className="section-header">
+            <span className="section-tag"><Calendar size={14} /> Agenda Prévention</span>
+            <h2 className="section-title-modern">Campagnes de <span>prévention en cours</span></h2>
+            <p className="section-subtitle-modern">Restez informés sur les grandes dates de dépistage, de sensibilisation et de vaccination de la commune.</p>
+          </div>
+
+          <div className="sante-prevention-grid">
+            {preventionCampaigns.map((camp, idx) => (
+              <div key={idx} className="sante-prevention-card">
+                <div className="prev-date-badge">
+                  <Clock size={16} />
+                  <span>{camp.date}</span>
+                </div>
+                <h3>{camp.title}</h3>
+                <span className="prev-location">{camp.loc}</span>
+                <p>{camp.desc}</p>
+                <div className="prev-footer">
+                  <span className="prev-tag">{camp.type}</span>
+                  <button 
+                    className="btn-prev-participate"
+                    onClick={() => setSelectedService({
+                      title: camp.title,
+                      category: camp.type,
+                      desc: camp.desc,
+                      fullDesc: `Cette session publique gratuite est organisée par le pôle santé de Dembéni dans le cadre de nos initiatives territoriales de prévention. Venez rencontrer nos professionnels et obtenir des bilans de santé instantanés et fiables.`,
+                      img: "https://images.unsplash.com/photo-1579684389782-64d84b5e902a?auto=format&fit=crop&q=80&w=800",
+                      location: camp.loc.replace('📍 ', ''),
+                      hours: `Le ${camp.date} toute la journée`,
+                      phone: "02 69 63 01 15",
+                      email: "prevention@dembeni.fr",
+                      benefits: [
+                        "Dépistage rapide, indolore et 100% gratuit",
+                        "Conseils personnalisés par des nutritionnistes diplômés",
+                        "Prise en charge et orientation si nécessaire"
+                      ]
+                    })}
+                  >
+                    S'inscrire à l'atelier
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. URGENCES & CONTACTS */}
+      <section id="urgences" className="sante-emergencies-section">
+        <div className="h-container">
+          <div className="sante-emergencies-banner">
+            <div className="emergencies-header">
+              <span className="emergencies-badge"><Phone size={14} /> Assistance 24/7</span>
+              <h2>Numéros d'urgence et de secours médicaux</h2>
+              <p>En cas de situation critique ou de besoin immédiat d'assistance de santé à Mayotte, contactez les services ci-dessous.</p>
+            </div>
+            
+            <div className="emergencies-contacts-grid">
+              {emergencyContacts.map((contact, idx) => (
+                <div key={idx} className="emergency-contact-card">
+                  <div className="emergency-card-top">
+                    <h4>{contact.name}</h4>
+                    <span className="emergency-phone-number" style={{ color: contact.color }}>
+                      📞 {contact.number}
+                    </span>
+                  </div>
+                  <p>{contact.desc}</p>
+                  <a href={`tel:${contact.number}`} className="btn-call-emergency" style={{ background: contact.color }}>
+                    Appeler immédiatement
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. COMMUNITY ACTIVITIES */}
+      <section className="sante-community-activities">
+        <div className="h-container">
+          <div className="section-header">
+            <span className="section-tag"><Users size={14} /> Vie citoyenne & Ateliers</span>
+            <h2 className="section-title-modern">Ateliers collectifs <span>& Bien-être</span></h2>
+            <p className="section-subtitle-modern">Participez à nos événements sportifs et culinaires gratuits organisés dans vos localités de Dembéni.</p>
+          </div>
+
+          <div className="sante-activities-grid">
+            {communityEvents.map((event, idx) => (
+              <div key={idx} className="sante-activity-card">
+                <div className="sante-act-img-wrap">
+                  <img src={event.img} alt={event.title} className="sante-act-img" />
+                </div>
+                <div className="sante-act-content">
+                  <h3>{event.title}</h3>
+                  <p>{event.desc}</p>
+                  <div className="sante-act-meta">
+                    <span>📅 {event.date}</span>
+                    <span>📍 {event.loc}</span>
+                  </div>
+                  <button 
+                    className="sante-act-btn"
+                    onClick={() => setSelectedService({
+                      title: event.title,
+                      category: "Vie citoyenne",
+                      desc: event.desc,
+                      fullDesc: `Ces ateliers conviviaux encouragent la citoyenneté active, le lien social et l'hygiène de vie. Rejoignez un groupe bienveillant pour apprendre, échanger et prendre soin de vous.`,
+                      img: event.img,
+                      location: event.loc,
+                      hours: event.date,
+                      phone: "02 69 63 44 10",
+                      email: "ccas@dembeni.fr",
+                      benefits: [
+                        "Animation conviviale et professionnelle en groupe",
+                        "Gratuit et accessible à tous les administrés",
+                        "Kits d'apprentissage et fiches pratiques offertes"
+                      ]
+                    })}
+                  >
+                    Rejoindre le groupe
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. MODERN GALLERY */}
+      <section className="sante-gallery-section">
+        <div className="h-container">
+          <div className="section-header">
+            <span className="section-tag"><Sparkles size={14} /> Galerie municipale</span>
+            <h2 className="section-title-modern">Nos actions en <span>images</span></h2>
+            <p className="section-subtitle-modern">Retour en photos sur les interventions et les actions médico-sociales engagées par nos agents communaux.</p>
+          </div>
+
+          <div className="sante-gallery-grid">
+            {galleryImages.map((imgUrl, idx) => (
+              <div key={idx} className="sante-gallery-card">
+                <img src={imgUrl} alt={`Solidarite Dembeni ${idx + 1}`} className="sante-gallery-img" />
+                <div className="sante-gallery-hover-overlay">
+                  <Sparkles size={24} color="white" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 9. PREMIUM MODAL POPUP */}
+      {selectedService && (
+        <div className="sante-modal-overlay" onClick={() => setSelectedService(null)}>
+          <div className="sante-modal-card animate-modal-in" onClick={(e) => e.stopPropagation()}>
+            <button className="sante-modal-close" onClick={() => setSelectedService(null)}>
+              <X size={20} />
+            </button>
+            
+            <div className="sante-modal-hero">
+              <img src={selectedService.img} alt={selectedService.title} className="sante-modal-hero-img" />
+              <div className="sante-modal-hero-overlay-grad" />
+              <div className="sante-modal-hero-content">
+                <span className="sante-modal-category">{selectedService.category}</span>
+                <h2>{selectedService.title}</h2>
+              </div>
+            </div>
+            
+            <div className="sante-modal-body">
+              <div className="sante-modal-main">
+                <h3><Info size={18} /> Présentation du service</h3>
+                <p className="sante-modal-fulldesc">{selectedService.fullDesc}</p>
+                
+                <h3><Award size={18} /> Vos avantages & Points clés</h3>
+                <ul className="sante-modal-benefits">
+                  {selectedService.benefits && selectedService.benefits.map((benefit, i) => (
+                    <li key={i}>
+                      <CheckCircle size={16} className="benefit-check-icon" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="sante-modal-aside">
+                <div className="sante-modal-info-tile">
+                  <div className="tile-icon-wrap"><MapPin size={18} /></div>
+                  <div>
+                    <h4>Localisation</h4>
+                    <p>{selectedService.location}</p>
+                  </div>
+                </div>
+                
+                <div className="sante-modal-info-tile">
+                  <div className="tile-icon-wrap"><Clock size={18} /></div>
+                  <div>
+                    <h4>Horaires</h4>
+                    <p>{selectedService.hours}</p>
+                  </div>
+                </div>
+                
+                <div className="sante-modal-info-tile">
+                  <div className="tile-icon-wrap"><Phone size={18} /></div>
+                  <div>
+                    <h4>Téléphone</h4>
+                    <p>{selectedService.phone}</p>
+                  </div>
+                </div>
+                
+                <div className="sante-modal-info-tile">
+                  <div className="tile-icon-wrap"><Mail size={18} /></div>
+                  <div>
+                    <h4>E-mail direct</h4>
+                    <p>{selectedService.email}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="sante-modal-footer">
+              <button className="btn-modal-close-action" onClick={() => setSelectedService(null)}>
+                Fermer la fenêtre
+              </button>
+              <a href={`tel:${selectedService.phone}`} className="btn-modal-call-action">
+                Contacter le pôle
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default SantePage;
