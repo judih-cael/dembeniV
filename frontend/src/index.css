@@ -8,15 +8,15 @@
    CSS CUSTOM PROPERTIES
    ────────────────────────────────────────────────────────── */
 :root {
-  /* Brand Colors (Forest Green / Turquoise Modern Theme) */
+  /* Brand Colors (Forest Green / Emerald Modern Theme) */
   --primary:       #0d4a3e;
   --primary-dark:  #06211b;
-  --primary-light: #14b8a6;
-  --accent:        #22c55e;
-  --accent-light:  #22d3ee;
-  --blue-soft:     #0ea5e9;
-  --white-broken:  #f5f5f5;
-  --grey-premium:  #1f2937;
+  --primary-light: #10b981;
+  --accent:        #10b981;
+  --accent-light:  #4ade80;
+  --blue-soft:     #16a34a;
+  --white-broken:  #f8fafc;
+  --grey-premium:  #07101e;
   
   /* Color Scales (for compatibility with modern components) */
   --p-50:  #f0fdf4; --p-100: #dcfce7; --p-200: #bbf7d0; --p-300: #86efac;
@@ -8379,4 +8379,118 @@ img { max-width: 100%; display: block; }
   .public-service-overhaul .h-container > div:nth-child(2) {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ──────────────────────────────────────────────────────────
+   CINEMATIC GREEN COLOR GRADING & UNIFIED IDENTITIES
+   ────────────────────────────────────────────────────────── */
+/* Cinematic Green Grading on images - realistic & natural */
+.news-card-featured img,
+.news-card-small img,
+.event-img-premium,
+.expanded-card-img,
+.ruins-img,
+.ps-img,
+.subpage-hero-img,
+.commune-modal-img,
+.waste-collage-image-card img,
+.presentation-images img,
+.news-grid-card img,
+.solidarity-visual,
+.pink-visual {
+  filter: saturate(1.08) contrast(1.04) brightness(0.88) sepia(0.06) hue-rotate(14deg) !important;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease !important;
+}
+
+/* Hover zoom and grading updates */
+.news-card-featured:hover img,
+.news-card-small:hover img,
+.event-card-premium:hover .event-img-premium,
+.expanded-card:hover .expanded-card-img,
+.waste-collage-image-card:hover img,
+.presentation-images:hover img,
+.news-grid-card:hover img {
+  filter: saturate(1.12) contrast(1.08) brightness(0.92) sepia(0.04) hue-rotate(14deg) !important;
+  transform: scale(1.03) !important;
+}
+
+/* Cinematic Green Vignette & Overlay tint */
+.news-card-featured::after,
+.news-card-small::after,
+.event-media-premium::after,
+.expanded-card-image-wrap::after,
+.ruins-img-card::after,
+.ps-image-card::after,
+.subpage-hero::after,
+.commune-modal-media::after,
+.waste-collage-image-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(13, 74, 62, 0.16) 0%, rgba(7, 16, 30, 0.32) 100%) !important;
+  mix-blend-mode: color !important;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Unified Premium Card styling */
+.expanded-card,
+.news-card-small,
+.event-card-premium,
+.news-grid-card,
+.waste-accordion-card,
+.service-premium-card,
+.sidebar-item-premium,
+.modal-stat-box,
+.dashboard-stat-card,
+.admin-stat-card,
+.solidarity-section-green {
+  border-radius: 20px !important;
+  border: 1px solid rgba(16, 185, 129, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden;
+}
+
+.expanded-card:hover,
+.news-card-small:hover,
+.event-card-premium:hover,
+.news-grid-card:hover,
+.sidebar-item-premium:hover {
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  box-shadow: 0 15px 35px rgba(13, 74, 62, 0.08), 0 0 15px rgba(16, 185, 129, 0.05) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Premium Green Buttons */
+.btn-primary,
+.btn-news-all,
+.btn-waste-action,
+.btn-learn-more-prem,
+.btn-auth-submit-gradient,
+.btn-pink-dark,
+.btn-learn-more,
+.btn-action-primary-glow,
+.btn-solidarity-dark {
+  background: linear-gradient(135deg, #10b981 0%, #0d4a3e 100%) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  font-weight: 750 !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25) !important;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.btn-primary:hover,
+.btn-news-all:hover,
+.btn-waste-action:hover,
+.btn-learn-more-prem:hover,
+.btn-auth-submit-gradient:hover,
+.btn-pink-dark:hover,
+.btn-learn-more:hover,
+.btn-action-primary-glow:hover,
+.btn-solidarity-dark:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.2) !important;
+  background: linear-gradient(135deg, #10b981 0%, #16a34a 100%) !important;
 }

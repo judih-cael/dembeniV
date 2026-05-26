@@ -1448,25 +1448,25 @@ const Home = () => {
 
       {/* 9. HEALTH AND SOLIDARITY SECTION */}
       <section className="h-container" style={{ paddingTop: '64px', paddingBottom: '64px' }}>
-        <div className="pink-section" style={{ borderRadius: '24px', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', background: '#fff0f6', border: '1px solid #ffdeeb' }}>
-          <div className="pink-content" style={{ padding: '36px', textAlign: 'left' }}>
-            <div className="section-tag-simple" style={{ background: '#fce7f3', color: '#be185d', padding: '4px 12px', borderRadius: '20px', fontSize: '0.72rem', display: 'inline-flex', gap: '6px', alignItems: 'center' }}><Heart size={12} /> Solidarité & Santé</div>
-            <h2 className="pink-title" style={{ fontSize: '1.8rem', fontWeight: 850, marginTop: '12px', color: '#9d174d' }}>
+        <div className="solidarity-section-green" style={{ borderRadius: '24px', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', background: '#f0fdf4', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+          <div className="solidarity-content" style={{ padding: '36px', textAlign: 'left' }}>
+            <div className="section-tag-simple" style={{ background: '#dcfce7', color: '#16a34a', padding: '4px 12px', borderRadius: '20px', fontSize: '0.72rem', display: 'inline-flex', gap: '6px', alignItems: 'center', fontWeight: 700 }}><Heart size={12} /> Solidarité & Santé</div>
+            <h2 className="solidarity-title" style={{ fontSize: '1.8rem', fontWeight: 850, marginTop: '12px', color: '#0d4a3e' }}>
               Dembéni se mobilise pour <span>la santé publique</span>
             </h2>
-            <p className="pink-desc" style={{ fontSize: '0.88rem', color: '#be185d', lineHeight: 1.6, marginTop: '8px', marginBottom: '24px' }}>
+            <p className="solidarity-desc" style={{ fontSize: '0.88rem', color: '#334155', lineHeight: 1.6, marginTop: '8px', marginBottom: '24px' }}>
               Chaque année, la commune organise des marches solidaires et des ateliers d'information pour la prévention des maladies et le soutien aux familles en partenariat avec le CCAS.
             </p>
-            <div className="pink-btns" style={{ display: 'flex', gap: '12px' }}>
-              <Link to="/services" className="btn-pink-dark" style={{ background: '#be185d', color: 'white', padding: '10px 24px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
+            <div className="solidarity-btns" style={{ display: 'flex', gap: '12px' }}>
+              <Link to="/services" className="btn-solidarity-dark" style={{ background: '#10b981', color: 'white', padding: '10px 24px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
                 Nos services santé
               </Link>
-              <Link to="/contact" className="btn-pink-light" style={{ background: 'white', color: '#be185d', border: '1px solid #ffc2d9', padding: '10px 24px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
+              <Link to="/contact" className="btn-solidarity-light" style={{ background: 'white', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '10px 24px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
                 Prendre contact
               </Link>
             </div>
           </div>
-          <div className="pink-visual" style={{ background: "url('https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=600&q=80') center/cover" }} />
+          <div className="solidarity-visual" style={{ background: "url('https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=600&q=80') center/cover" }} />
         </div>
       </section>
 
