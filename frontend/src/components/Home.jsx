@@ -76,9 +76,12 @@ const Home = () => {
         const data = await response.json();
         
         if (data && data.success && Array.isArray(data.data)) {
-          // Séparer les événements des actualités pour l'affichage
+          // Séparer les événements des actualités pour l'affichage intelligent
           const events = data.data.filter(pub => pub.type === 'evenement');
-          const news = data.data.filter(pub => pub.type !== 'evenement');
+          const news = data.data.filter(pub => 
+            pub.type !== 'evenement' && 
+            (pub.isFeatured || pub.isPinned || pub.showOnHomepage || pub.isUrgent)
+          );
           
           setAllEvents(events);
           setAllNewsItems(news);

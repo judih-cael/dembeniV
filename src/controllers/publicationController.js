@@ -5,19 +5,29 @@ const Publication = require('../models/Publication');
 // @route   GET /api/publications
 // @access  Public
 const getPublications = asyncHandler(async (req, res) => {
-    const { type, category, status, isFeatured, isPinned, limit } = req.query;
+    const { type, category, status, isFeatured, isPinned, isUrgent, showOnHomepage, limit } = req.query;
     
     let query = {};
     
     if (type) query.type = type;
-    if (category) query.category = category;
+    
+    if (category) {
+        query.$or = [
+            { category: category },
+            { secondaryCategories: category }
+        ];
+    }
+    
     if (status) query.status = status;
     else if (!req.user || req.user.role !== 'admin') {
         // By default, public users only see published content
         query.status = 'published';
     }
+    
     if (isFeatured) query.isFeatured = isFeatured === 'true';
     if (isPinned) query.isPinned = isPinned === 'true';
+    if (isUrgent) query.isUrgent = isUrgent === 'true';
+    if (showOnHomepage) query.showOnHomepage = showOnHomepage === 'true';
 
     let mongooseQuery = Publication.find(query).sort({ createdAt: -1 });
     

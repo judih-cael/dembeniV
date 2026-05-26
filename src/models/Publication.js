@@ -42,6 +42,22 @@ const publicationSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isUrgent: {
+        type: Boolean,
+        default: false
+    },
+    showOnHomepage: {
+        type: Boolean,
+        default: false
+    },
+    secondaryCategories: [{
+        type: String,
+        enum: [
+            'Santé & Solidarité', 'Environnement', 'Jeunesse', 'Culture', 
+            'Sécurité', 'Services publics', 'Vie citoyenne', 'Urbanisme', 
+            'Éducation', 'Développement local', 'Général'
+        ]
+    }],
     tags: [{
         type: String
     }],

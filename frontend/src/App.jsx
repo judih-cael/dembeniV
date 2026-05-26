@@ -50,11 +50,11 @@ function App() {
             <Route path="/contact"   element={<Contact />} />
             
             {/* New Sub-pages */}
-            <Route path="/demarches" element={<SubPage title="Démarches Administratives" subtitle="Retrouvez tous les services en ligne pour faciliter votre quotidien." items={demarchesData} />} />
-            <Route path="/projet"    element={<SubPage title="Grands Projets" subtitle="Découvrez les chantiers qui façonnent le Dembéni de demain." items={projetsData} />} />
-            <Route path="/services"  element={<SubPage title="Services Publics" subtitle="Une administration proche de vous, à votre écoute au quotidien." items={servicesData} />} />
+            <Route path="/demarches" element={<SubPage title="Démarches Administratives" subtitle="Retrouvez tous les services en ligne pour faciliter votre quotidien." items={demarchesData} category="Services publics" />} />
+            <Route path="/projet"    element={<SubPage title="Grands Projets" subtitle="Découvrez les chantiers qui façonnent le Dembéni de demain." items={projetsData} category="Développement local" />} />
+            <Route path="/services"  element={<SubPage title="Services Publics" subtitle="Une administration proche de vous, à votre écoute au quotidien." items={servicesData} category="Services publics" />} />
             <Route path="/actualites" element={<NewsPage />} />
-            <Route path="/culture"    element={<SubPage title="Culture & Patrimoine" subtitle="Découvrez la richesse culturelle et historique de Dembéni." />} />
+            <Route path="/culture"    element={<SubPage title="Culture & Patrimoine" subtitle="Découvrez la richesse culturelle et historique de Dembéni." category="Culture" />} />
             <Route path="/solidarite" element={<SantePage />} />
             <Route path="/sante"      element={<SantePage />} />
           </Routes>

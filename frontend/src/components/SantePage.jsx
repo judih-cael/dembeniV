@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, Shield, Activity, Phone, Calendar, Users, 
   Award, Info, MapPin, Clock, ArrowRight, BookOpen, 
@@ -8,6 +8,28 @@ import { Link } from 'react-router-dom';
 
 const SantePage = () => {
   const [selectedService, setSelectedService] = useState(null);
+  const [newsList, setNewsList] = useState([]);
+  const [isLoadingNews, setIsLoadingNews] = useState(true);
+
+  useEffect(() => {
+    const fetchSanteNews = async () => {
+      try {
+        setIsLoadingNews(true);
+        const response = await fetch('http://localhost:4000/api/publications?category=Santé %26 Solidarité&status=published');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.success && Array.isArray(data.data)) {
+            setNewsList(data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur chargement actus santé:", err);
+      } finally {
+        setIsLoadingNews(false);
+      }
+    };
+    fetchSanteNews();
+  }, []);
 
   const medicalServices = [
     {
@@ -419,6 +441,68 @@ const SantePage = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* DYNAMIC PUBLICATIONS SECTION FOR HEALTH & SOLIDARITY */}
+      <section className="sante-dynamic-publications" style={{ background: '#f8fafc', padding: '60px 0', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+        <div className="h-container">
+          <div className="section-header" style={{ marginBottom: '40px', textAlign: 'center' }}>
+            <span className="section-tag" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '6px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Info size={14} /> Flash Infos & Actualités
+            </span>
+            <h2 className="section-title-modern" style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0f3c28', marginTop: '12px' }}>
+              Actualités <span>Santé & Solidarité</span>
+            </h2>
+            <p className="section-subtitle-modern" style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+              Toutes les informations officielles de la commune concernant la santé, l'accès aux droits et l'action sociale.
+            </p>
+          </div>
+
+          {isLoadingNews ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <div style={{ border: '3px solid #f3f3f3', borderTop: '3px solid #10b981', borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
+              <p style={{ marginTop: '12px', color: '#64748b', fontSize: '0.88rem' }}>Chargement des actualités en direct...</p>
+            </div>
+          ) : newsList.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
+              <p style={{ color: '#64748b', margin: 0, fontWeight: 600 }}>Aucune actualité récente dans cette catégorie pour le moment.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+              {newsList.map((pub) => (
+                <div key={pub._id} className="sante-service-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '20px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                  <div className="sante-card-img-wrap" style={{ height: '200px', position: 'relative' }}>
+                    <img src={pub.image || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800'} alt={pub.title} className="sante-card-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {pub.isUrgent && (
+                      <span style={{ position: 'absolute', top: '12px', right: '12px', background: '#ef4444', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800 }}>🚨 ALERTE</span>
+                    )}
+                  </div>
+                  <div className="sante-card-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px' }}>
+                    <div>
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
+                          {pub.type}
+                        </span>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b' }}>
+                          📅 {pub.createdAt ? new Date(pub.createdAt).toLocaleDateString('fr-FR') : ''}
+                        </span>
+                      </div>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: '850', color: '#0f3c28', margin: '0 0 10px 0', lineHeight: 1.3 }}>{pub.title}</h3>
+                      <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>{pub.content}</p>
+                    </div>
+                    
+                    {pub.type === 'evenement' && pub.eventDate && (
+                      <div style={{ fontSize: '0.78rem', background: '#f1f5f9', padding: '10px', borderRadius: '8px', margin: '14px 0 0 0', border: '1px solid #e2e8f0', color: '#334155' }}>
+                        <div>📅 Date : <strong>{new Date(pub.eventDate).toLocaleDateString('fr-FR')}</strong></div>
+                        <div style={{ marginTop: '2px' }}>📍 Lieu : <strong>{pub.eventLocation || 'Dembéni'}</strong></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

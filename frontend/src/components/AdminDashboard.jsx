@@ -84,10 +84,13 @@ const AdminDashboard = () => {
     content: '',
     type: 'actualite',
     category: 'Général',
+    secondaryCategories: [],
     image: '',
     status: 'published',
     isFeatured: false,
     isPinned: false,
+    isUrgent: false,
+    showOnHomepage: false,
     tags: '',
     eventDate: '',
     eventLocation: ''
@@ -227,10 +230,13 @@ const AdminDashboard = () => {
         content: '',
         type: 'actualite',
         category: 'Général',
+        secondaryCategories: [],
         image: '',
         status: 'published',
         isFeatured: false,
         isPinned: false,
+        isUrgent: false,
+        showOnHomepage: false,
         tags: '',
         eventDate: '',
         eventLocation: ''
@@ -260,10 +266,13 @@ const AdminDashboard = () => {
         content: '',
         type: 'actualite',
         category: 'Général',
+        secondaryCategories: [],
         image: '',
         status: 'published',
         isFeatured: false,
         isPinned: false,
+        isUrgent: false,
+        showOnHomepage: false,
         tags: '',
         eventDate: '',
         eventLocation: ''
@@ -299,6 +308,21 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error(err);
       triggerToast("Impossible de changer le statut", "error");
+    }
+  };
+
+  const toggleSecondaryCategory = (cat) => {
+    const current = publicationForm.secondaryCategories || [];
+    if (current.includes(cat)) {
+      setPublicationForm(prev => ({
+        ...prev,
+        secondaryCategories: current.filter(c => c !== cat)
+      }));
+    } else {
+      setPublicationForm(prev => ({
+        ...prev,
+        secondaryCategories: [...current, cat]
+      }));
     }
   };
 
@@ -1001,7 +1025,7 @@ const AdminDashboard = () => {
                     <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>Toutes vos publications dynamiques apparaissent automatiquement sur les pages concernées du portail public.</p>
                   </div>
                   <button 
-                    onClick={() => { setPublicationForm({ title: '', content: '', type: 'actualite', category: 'Général', image: '', status: 'published', isFeatured: false, isPinned: false, tags: '', eventDate: '', eventLocation: '' }); setCurrentModal('add_publication'); }}
+                    onClick={() => { setPublicationForm({ title: '', content: '', type: 'actualite', category: 'Général', secondaryCategories: [], image: '', status: 'published', isFeatured: false, isPinned: false, isUrgent: false, showOnHomepage: false, tags: '', eventDate: '', eventLocation: '' }); setCurrentModal('add_publication'); }}
                     className="btn-primary-gradient"
                     style={{ background: '#10b981', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)', padding: '10px 20px', fontWeight: 700 }}
                   >
@@ -1101,7 +1125,7 @@ const AdminDashboard = () => {
                             </button>
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button 
-                                onClick={() => { setSelectedItem(pub); setPublicationForm({ title: pub.title, content: pub.content, type: pub.type, category: pub.category, image: pub.image, status: pub.status, isFeatured: pub.isFeatured || false, isPinned: pub.isPinned || false, tags: pub.tags ? pub.tags.join(', ') : '', eventDate: pub.eventDate ? pub.eventDate.substring(0, 10) : '', eventLocation: pub.eventLocation || '' }); setCurrentModal('edit_publication'); }}
+                                onClick={() => { setSelectedItem(pub); setPublicationForm({ title: pub.title, content: pub.content, type: pub.type, category: pub.category, secondaryCategories: pub.secondaryCategories || [], image: pub.image, status: pub.status, isFeatured: pub.isFeatured || false, isPinned: pub.isPinned || false, isUrgent: pub.isUrgent || false, showOnHomepage: pub.showOnHomepage || false, tags: pub.tags ? pub.tags.join(', ') : '', eventDate: pub.eventDate ? pub.eventDate.substring(0, 10) : '', eventLocation: pub.eventLocation || '' }); setCurrentModal('edit_publication'); }}
                                 style={{ padding: '6px 12px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1', background: 'transparent', borderRadius: '8px', color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                               >
                                 <Edit size={14} /> Éditer
@@ -1258,8 +1282,8 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label>Catégorie</label>
-                      <select value={publicationForm.category} onChange={e => setPublicationForm({ ...publicationForm, category: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}>
+                      <label>Catégorie principale *</label>
+                      <select value={publicationForm.category} onChange={e => setPublicationForm({ ...publicationForm, category: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontWeight: 'bold' }}>
                         <option value="Général">Général</option>
                         <option value="Santé & Solidarité">Santé & Solidarité</option>
                         <option value="Environnement">Environnement</option>
@@ -1272,6 +1296,26 @@ const AdminDashboard = () => {
                         <option value="Éducation">Éducation</option>
                         <option value="Développement local">Développement local</option>
                       </select>
+                    </div>
+                  </div>
+
+                  <div className="modal-form-group" style={{ textAlign: 'left' }}>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b' }}>Catégories Secondaires (Routage multiple optionnel)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px', marginTop: '8px', padding: '12px', background: isDarkMode ? '#1e293b' : '#f8fafc', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                      {[
+                        'Santé & Solidarité', 'Environnement', 'Jeunesse', 'Culture', 
+                        'Sécurité', 'Services publics', 'Vie citoyenne', 'Urbanisme', 
+                        'Éducation', 'Développement local', 'Général'
+                      ].filter(cat => cat !== publicationForm.category).map(cat => (
+                        <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, color: isDarkMode ? '#cbd5e1' : '#334155' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={(publicationForm.secondaryCategories || []).includes(cat)} 
+                            onChange={() => toggleSecondaryCategory(cat)} 
+                          />
+                          {cat}
+                        </label>
+                      ))}
                     </div>
                   </div>
 
@@ -1306,14 +1350,22 @@ const AdminDashboard = () => {
 
                   <div className="modal-form-group" style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '14px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#e2e8f0', color: isDarkMode ? 'white' : '#1e293b', textAlign: 'left' }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Paramètres d'affichage & Référencement</span>
-                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700 }}>
                         <input type="checkbox" checked={publicationForm.isPinned} onChange={e => setPublicationForm({ ...publicationForm, isPinned: e.target.checked })} />
-                        📌 Épingler en haut des actualités
+                        📌 Épingler en haut
                       </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700 }}>
                         <input type="checkbox" checked={publicationForm.isFeatured} onChange={e => setPublicationForm({ ...publicationForm, isFeatured: e.target.checked })} />
                         ⭐ Mettre à la Une de la Mairie
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700 }}>
+                        <input type="checkbox" checked={publicationForm.showOnHomepage} onChange={e => setPublicationForm({ ...publicationForm, showOnHomepage: e.target.checked })} />
+                        🏠 Afficher sur la page d'accueil
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700, color: '#f59e0b' }}>
+                        <input type="checkbox" checked={publicationForm.isUrgent} onChange={e => setPublicationForm({ ...publicationForm, isUrgent: e.target.checked })} />
+                        🚨 Publication Urgente (Alerte)
                       </label>
                     </div>
 
