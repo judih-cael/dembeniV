@@ -4,7 +4,7 @@ import {
   Info, ArrowRight, Play, CheckCircle2, FileText, Trash2, Heart, Music, Users, 
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Newspaper, Image, Calendar, 
   Truck, Globe, CreditCard, Utensils, Baby, Palette, ClipboardList, ShieldAlert, Award,
-  Landmark, MoreHorizontal, GraduationCap, Hammer, MapPin
+  Landmark, MoreHorizontal, GraduationCap, Hammer, MapPin, Shield, Clock, Phone, Activity
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -1106,35 +1106,297 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 7. RECEPTION & PUBLIC SERVICE SECTION */}
-      <section className="public-service-section" style={{ padding: '64px 0', background: 'white' }}>
+      {/* 7. RECEPTION & PUBLIC SERVICE SECTION - TOTAL OVERHAUL */}
+      <section className="public-service-overhaul" style={{ padding: '80px 0', background: '#07101e', color: 'white', position: 'relative', overflow: 'hidden' }}>
+        {/* Glow Effects */}
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none' }} />
+
         <div className="h-container">
-          <div className="ps-banner" style={{ borderRadius: '24px', overflow: 'hidden', padding: '32px', background: '#0b1528' }}>
-            <div className="ps-content" style={{ textAlign: 'left' }}>
-              <div className="ps-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '16px', marginBottom: '24px' }}>
-                <div className="ps-title-row" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div className="news-header-icon" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={18} /></div>
-                  <h2 className="ps-title" style={{ fontSize: '1.4rem', fontWeight: 850, color: 'white', margin: 0 }}>Services Municipaux & Administration</h2>
-                </div>
-                <h3 className="ps-subtitle" style={{ fontSize: '0.88rem', color: '#10b981', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '8px', margin: 0 }}>
-                  À votre service au quotidien
-                </h3>
+          {/* Header Row */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '50px' }}>
+            <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', padding: '6px 16px', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <Shield size={13} /> Institutionnel & Administration
+            </span>
+            <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: 'white', marginTop: '16px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              Services Municipaux & <span style={{ color: '#10b981' }}>Administration</span>
+            </h2>
+            <p style={{ color: '#94a3b8', fontSize: '1rem', marginTop: '12px', maxWidth: '700px', lineHeight: 1.6, margin: '12px auto 0 auto' }}>
+              La Mairie de Dembéni s'engage dans la modernisation de son administration pour offrir un service public de proximité rapide, transparent et accessible à tous les citoyens.
+            </p>
+          </div>
+
+          {/* Main Layout Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'stretch', marginBottom: '50px' }}>
+            {/* Left Column: Image Composition */}
+            <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', minHeight: '380px', display: 'flex', flexDirection: 'column', justifySelf: 'stretch', justifyContent: 'flex-end', padding: '40px', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: "url('https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80&w=1200') center/cover", transition: 'transform 0.5s ease' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(7,16,30,0.95) 0%, rgba(7,16,30,0.4) 60%, rgba(7,16,30,0.1) 100%)' }} />
+              
+              {/* Badges on top of image */}
+              <div style={{ position: 'absolute', top: '24px', left: '24px', display: 'flex', gap: '8px', zIndex: 3 }}>
+                <span style={{ background: '#10b981', color: 'white', padding: '5px 12px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 800 }}>✓ SERVICE RAPIDE</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 800 }}>🏠 ACCUEIL PHYSIQUE</span>
               </div>
-              <div className="ps-body-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '32px', alignItems: 'center' }}>
-                <div className="ps-text" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6, margin: 0 }}>
-                    Les agents de la Mairie de Dembéni vous accompagnent dans toutes vos démarches administratives, de l'état civil aux inscriptions scolaires en passant par les aides du CCAS.
-                  </p>
-                  <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6, margin: 0 }}>
-                    Nous mettons tout en œuvre pour vous offrir un accueil chaleureux et des réponses rapides pour faciliter votre intégration et vos projets sur notre territoire.
-                  </p>
-                </div>
-                <div className="ps-image-card" style={{ height: '180px', borderRadius: '16px', overflow: 'hidden' }}>
-                  <img src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=600&q=80" alt="Mairie de Dembéni" className="ps-img" />
+
+              {/* Content on Image */}
+              <div style={{ position: 'relative', zIndex: 2, textAlign: 'left' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 850, color: 'white', marginBottom: '10px' }}>Guichet Unique & Accueil Citoyens</h3>
+                <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                  Nos agents vous reçoivent en mairie annexe ou principale pour faciliter toutes vos démarches civiles et d'urbanisme. Une administration à l'écoute de chaque projet familial ou entrepreneurial.
+                </p>
+                
+                {/* Micro Stats inside image */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '20px' }}>
+                  <div>
+                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#10b981', display: 'block' }}>15 min</span>
+                    <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Attente Moyenne</span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#10b981', display: 'block' }}>96%</span>
+                    <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Satisfaction</span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#10b981', display: 'block' }}>12k +</span>
+                    <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Démarches / an</span>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Right Column: Information Panel (Hours, Contacts, Utilities) */}
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '20px' }}>
+              
+              {/* Horaires et Informations Pratiques Card */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '30px', textAlign: 'left' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: 'white', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={18} style={{ color: '#10b981' }} /> Horaires d'ouverture de la Mairie
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>Lundi au Jeudi</span>
+                    <span style={{ color: 'white', fontWeight: 700 }}>7h30 - 15h30 (Continu)</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>Vendredi</span>
+                    <span style={{ color: 'white', fontWeight: 700 }}>7h30 - 11h30 (Matinée uniquement)</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>Samedi & Dimanche</span>
+                    <span style={{ color: '#ef4444', fontWeight: 700 }}>Fermé</span>
+                  </div>
+                </div>
+                
+                {/* Note */}
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', padding: '12px', borderRadius: '12px', fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+                  <span style={{ color: '#10b981', fontSize: '1rem' }}>💡</span>
+                  <span><strong>Démarches en ligne :</strong> Vos demandes d'actes d'état civil, CNI et Passeports restent accessibles 24h/24 via l'espace citoyen sécurisé.</span>
+                </div>
+              </div>
+
+              {/* Contact direct et Numéros Utiles */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '30px', textAlign: 'left' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: 'white', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Phone size={18} style={{ color: '#10b981' }} /> Contacts & Numéros Utiles
+                </h3>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 800, display: 'block', marginBottom: '4px' }}>Standard Mairie</span>
+                    <a href="tel:0269630115" style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', textDecoration: 'none', display: 'block', marginBottom: '4px' }}>02 69 63 01 15</a>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Appel non surtaxé</span>
+                  </div>
+                  
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 800, display: 'block', marginBottom: '4px' }}>Courriel Officiel</span>
+                    <a href="mailto:contact@dembeni.fr" style={{ fontSize: '0.95rem', fontWeight: 900, color: '#10b981', textDecoration: 'none', display: 'block', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>contact@dembeni.fr</a>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Réponse sous 48h</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '16px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', padding: '12px', borderRadius: '12px', fontSize: '0.8rem' }}>
+                  <span style={{ color: '#ef4444', fontSize: '1.1rem', fontWeight: 900 }}>🚨</span>
+                  <div style={{ color: '#fca5a5' }}>
+                    <strong>Alerte Sécurité Municipale :</strong> Pour toute urgence technique hors horaires, composez le <strong>02 69 63 05 50</strong>.
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
+
+          {/* Service Cards Grid (6 cards) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '50px', textAlign: 'left' }}>
+            {[
+              {
+                title: "État civil & ANTS",
+                desc: "Actes de naissance, mariage, décès, demandes et suivi de cartes d'identité (CNI) et passeports.",
+                icon: <FileText size={22} />,
+                route: "/demarches",
+                badge: "Service Principal"
+              },
+              {
+                title: "Urbanisme & PLU",
+                desc: "Permis de construire, déclarations préalables de travaux, cadastre et consultations du Plan Local d'Urbanisme.",
+                icon: <Hammer size={22} />,
+                route: "/projet",
+                badge: "Aménagement"
+              },
+              {
+                title: "CCAS & Action Sociale",
+                desc: "Aide alimentaire d'urgence, soutien aux aînés, accompagnement administratif et dossiers de logement social.",
+                icon: <Heart size={22} />,
+                route: "/solidarite",
+                badge: "Solidarité"
+              },
+              {
+                title: "Inscriptions Scolaires",
+                desc: "Inscriptions aux écoles maternelles et primaires de la commune, paiement de la cantine et activités périscolaires.",
+                icon: <GraduationCap size={22} />,
+                route: "/services",
+                badge: "Jeunesse"
+              },
+              {
+                title: "Services Techniques",
+                desc: "Signalement d'anomalies de voirie, demande d'intervention d'éclairage public et entretien communal.",
+                icon: <Activity size={22} />,
+                route: "/services",
+                badge: "Proximité"
+              },
+              {
+                title: "Culture & Associations",
+                desc: "Demande de subventions pour les associations locales, réservation de salles et billetterie des événements.",
+                icon: <Palette size={22} />,
+                route: "/culture",
+                badge: "Vie Locale"
+              }
+            ].map((srv, idx) => (
+              <div 
+                key={idx} 
+                className="service-premium-card" 
+                style={{ 
+                  background: 'rgba(255,255,255,0.03)', 
+                  border: '1px solid rgba(255,255,255,0.06)', 
+                  borderRadius: '20px', 
+                  padding: '28px', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  justifyContent: 'space-between', 
+                  height: '100%', 
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                {/* Card Glow Effect */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: '#10b981', transform: 'scaleX(0)', transformOrigin: 'left', transition: 'transform 0.3s ease' }} className="card-top-bar" />
+                
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', width: '46px', height: '46px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {srv.icon}
+                    </div>
+                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                      {srv.badge}
+                    </span>
+                  </div>
+                  
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', marginBottom: '10px' }}>
+                    {srv.title}
+                  </h4>
+                  
+                  <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                    {srv.desc}
+                  </p>
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                  <Link 
+                    to={srv.route} 
+                    style={{ 
+                      fontSize: '0.82rem', 
+                      fontWeight: 800, 
+                      color: '#10b981', 
+                      textDecoration: 'none', 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '6px',
+                      transition: 'gap 0.2s ease'
+                    }}
+                    className="card-action-link"
+                  >
+                    Accéder au service <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Action Buttons Row */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', marginTop: '30px' }}>
+            <Link 
+              to="/services" 
+              style={{ 
+                background: '#10b981', 
+                color: 'white', 
+                padding: '14px 28px', 
+                borderRadius: '12px', 
+                fontSize: '0.9rem', 
+                fontWeight: 800, 
+                textDecoration: 'none', 
+                boxShadow: '0 8px 24px -6px rgba(16,185,129,0.3)', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              className="btn-action-primary-glow"
+            >
+              Découvrir les services <ArrowRight size={16} />
+            </Link>
+            
+            <Link 
+              to="/demarches" 
+              style={{ 
+                background: 'rgba(255,255,255,0.06)', 
+                color: 'white', 
+                border: '1px solid rgba(255,255,255,0.12)', 
+                padding: '14px 28px', 
+                borderRadius: '12px', 
+                fontSize: '0.9rem', 
+                fontWeight: 800, 
+                textDecoration: 'none', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              className="btn-action-secondary-glow"
+            >
+              Effectuer une démarche
+            </Link>
+
+            <Link 
+              to="/contact" 
+              style={{ 
+                background: 'transparent', 
+                color: '#cbd5e1', 
+                padding: '14px 28px', 
+                borderRadius: '12px', 
+                fontSize: '0.9rem', 
+                fontWeight: 800, 
+                textDecoration: 'none', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              className="btn-action-text"
+            >
+              Contacter la mairie
+            </Link>
+          </div>
+
         </div>
       </section>
 

@@ -8335,3 +8335,48 @@ img { max-width: 100%; display: block; }
     gap: 12px;
   }
 }
+
+/* ──────────────────────────────────────────────────────────
+   MUNICIPAL SERVICES & ADMINISTRATION OVERHAUL STYLES
+   ────────────────────────────────────────────────────────── */
+.public-service-overhaul {
+  position: relative;
+}
+
+.service-premium-card:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35), 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+.service-premium-card:hover .card-top-bar {
+  transform: scaleX(1) !important;
+}
+
+.service-premium-card:hover .card-action-link {
+  gap: 10px !important;
+}
+
+.btn-action-primary-glow:hover {
+  transform: translateY(-2px);
+  background: #15803d !important;
+  box-shadow: 0 12px 30px -4px rgba(16, 185, 129, 0.5) !important;
+}
+
+.btn-action-secondary-glow:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-2px);
+}
+
+.btn-action-text:hover {
+  color: white !important;
+}
+
+/* Responsive adjustment for admin overhaul layout */
+@media (max-width: 991px) {
+  .public-service-overhaul .h-container > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+  }
+}
