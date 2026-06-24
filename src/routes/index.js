@@ -10,6 +10,8 @@ const serviceRoutes = require('./serviceRoutes');
 const demandeRoutes = require('./demandeRoutes');
 const contactRoutes = require('./contactRoutes');
 const publicationRoutes = require('./publicationRoutes');
+const contentSectionRoutes = require('./contentSectionRoutes');
+const projetRoutes = require('./projetRoutes');
 
 // Health check route
 router.get('/health', (req, res) => {
@@ -25,5 +27,7 @@ router.use('/services', serviceRoutes);
 router.use('/demandes', demandeRoutes);
 router.use('/contact', contactRoutes);
 router.use('/publications', publicationRoutes);
+router.use('/content-sections', contentSectionRoutes);
+router.use('/projets', projetRoutes);
 
 module.exports = router;

@@ -26,6 +26,9 @@ const AdminDashboard = () => {
   const [demandes, setDemandes] = useState([]);
   const [publications, setPublications] = useState([]);
   const [services, setServices] = useState([]);
+  const [contentSections, setContentSections] = useState([]);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [editingSectionData, setEditingSectionData] = useState(null);
   
   // Mock Signalements for Interactive Mapping
   const [signalements, setSignalements] = useState([
@@ -78,9 +81,15 @@ const AdminDashboard = () => {
   const [currentModal, setCurrentModal] = useState(null); // 'add_publication', 'edit_publication', 'add_service', 'edit_service', 'respond_demande'
   const [selectedItem, setSelectedItem] = useState(null);
   
+  // File Upload states
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
+  
   // Form Input States
   const [publicationForm, setPublicationForm] = useState({
     title: '',
+    description: '',
     content: '',
     type: 'actualite',
     category: 'Général',
@@ -93,7 +102,8 @@ const AdminDashboard = () => {
     showOnHomepage: false,
     tags: '',
     eventDate: '',
-    eventLocation: ''
+    eventLocation: '',
+    readingTime: 3
   });
   const [serviceForm, setServiceForm] = useState({ title: '', desc: '', fullDesc: '', category: 'Soins', img: '', location: '', hours: '', phone: '', email: '', benefits: '' });
   const [respondForm, setRespondForm] = useState({ message: '', status: 'approved' });
@@ -148,6 +158,21 @@ const AdminDashboard = () => {
       // Fetch Services
       const resServices = await axios.get('http://localhost:4000/api/services');
       setServices(resServices.data.data);
+
+      // Fetch CMS Content Sections
+      try {
+        const resContent = await axios.get('http://localhost:4000/api/content-sections');
+        if (resContent.data && resContent.data.success) {
+          setContentSections(resContent.data.data);
+          // Auto-select first section if none selected
+          if (resContent.data.data.length > 0 && !selectedSection) {
+            setSelectedSection(resContent.data.data[0]);
+            setEditingSectionData(JSON.parse(JSON.stringify(resContent.data.data[0])));
+          }
+        }
+      } catch (err) {
+        console.error("Erreur de chargement des sections CMS", err);
+      }
 
       if (!silent) {
         triggerToast("CMS communal synchronisé", "success");
@@ -217,16 +242,46 @@ const AdminDashboard = () => {
   const handleCreatePublication = async (e) => {
     e.preventDefault();
     try {
-      const headers = { Authorization: `Bearer ${user.token}` };
-      const formattedTags = publicationForm.tags ? publicationForm.tags.split(',').map(t => t.trim()).filter(t => t) : [];
-      const payload = {
-        ...publicationForm,
-        tags: formattedTags
+      const headers = { 
+        Authorization: `Bearer ${user.token}`,
+        'Content-Type': 'multipart/form-data'
       };
-      await axios.post('http://localhost:4000/api/publications', payload, { headers });
+      const formattedTags = publicationForm.tags ? publicationForm.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+      
+      const formData = new FormData();
+      formData.append('title', publicationForm.title);
+      formData.append('description', publicationForm.description || '');
+      formData.append('content', publicationForm.content);
+      formData.append('type', publicationForm.type);
+      formData.append('category', publicationForm.category);
+      formData.append('status', publicationForm.status);
+      formData.append('isFeatured', publicationForm.isFeatured);
+      formData.append('isPinned', publicationForm.isPinned);
+      formData.append('isUrgent', publicationForm.isUrgent);
+      formData.append('showOnHomepage', publicationForm.showOnHomepage);
+      formData.append('tags', formattedTags.join(','));
+      formData.append('readingTime', publicationForm.readingTime || 3);
+      
+      if (publicationForm.type === 'evenement') {
+        formData.append('eventDate', publicationForm.eventDate);
+        formData.append('eventLocation', publicationForm.eventLocation);
+      }
+
+      if (publicationForm.secondaryCategories && publicationForm.secondaryCategories.length > 0) {
+        formData.append('secondaryCategories', publicationForm.secondaryCategories.join(','));
+      }
+
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile);
+      }
+
+      await axios.post('http://localhost:4000/api/publications', formData, { headers });
       setCurrentModal(null);
+      setSelectedImageFile(null);
+      setImagePreviewUrl('');
       setPublicationForm({
         title: '',
+        description: '',
         content: '',
         type: 'actualite',
         category: 'Général',
@@ -239,7 +294,8 @@ const AdminDashboard = () => {
         showOnHomepage: false,
         tags: '',
         eventDate: '',
-        eventLocation: ''
+        eventLocation: '',
+        readingTime: 3
       });
       triggerToast("Publication enregistrée avec succès");
       fetchAllData(true);
@@ -252,17 +308,49 @@ const AdminDashboard = () => {
   const handleUpdatePublication = async (e) => {
     e.preventDefault();
     try {
-      const headers = { Authorization: `Bearer ${user.token}` };
-      const formattedTags = typeof publicationForm.tags === 'string' ? publicationForm.tags.split(',').map(t => t.trim()).filter(t => t) : publicationForm.tags;
-      const payload = {
-        ...publicationForm,
-        tags: formattedTags
+      const headers = { 
+        Authorization: `Bearer ${user.token}`,
+        'Content-Type': 'multipart/form-data'
       };
-      await axios.put(`http://localhost:4000/api/publications/${selectedItem._id}`, payload, { headers });
+      const formattedTags = typeof publicationForm.tags === 'string' ? publicationForm.tags.split(',').map(t => t.trim()).filter(t => t) : publicationForm.tags;
+      
+      const formData = new FormData();
+      formData.append('title', publicationForm.title);
+      formData.append('description', publicationForm.description || '');
+      formData.append('content', publicationForm.content);
+      formData.append('type', publicationForm.type);
+      formData.append('category', publicationForm.category);
+      formData.append('status', publicationForm.status);
+      formData.append('isFeatured', publicationForm.isFeatured);
+      formData.append('isPinned', publicationForm.isPinned);
+      formData.append('isUrgent', publicationForm.isUrgent);
+      formData.append('showOnHomepage', publicationForm.showOnHomepage);
+      formData.append('tags', Array.isArray(formattedTags) ? formattedTags.join(',') : formattedTags || '');
+      formData.append('readingTime', publicationForm.readingTime || 3);
+      
+      if (publicationForm.type === 'evenement') {
+        formData.append('eventDate', publicationForm.eventDate);
+        formData.append('eventLocation', publicationForm.eventLocation);
+      }
+
+      if (publicationForm.secondaryCategories && publicationForm.secondaryCategories.length > 0) {
+        formData.append('secondaryCategories', publicationForm.secondaryCategories.join(','));
+      }
+
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile);
+      } else {
+        formData.append('image', publicationForm.image || '');
+      }
+
+      await axios.put(`http://localhost:4000/api/publications/${selectedItem._id}`, formData, { headers });
       setCurrentModal(null);
       setSelectedItem(null);
+      setSelectedImageFile(null);
+      setImagePreviewUrl('');
       setPublicationForm({
         title: '',
+        description: '',
         content: '',
         type: 'actualite',
         category: 'Général',
@@ -275,7 +363,8 @@ const AdminDashboard = () => {
         showOnHomepage: false,
         tags: '',
         eventDate: '',
-        eventLocation: ''
+        eventLocation: '',
+        readingTime: 3
       });
       triggerToast("Publication mise à jour");
       fetchAllData(true);
@@ -407,6 +496,123 @@ const AdminDashboard = () => {
     }));
   };
 
+  // CMS CONTENT SECTIONS HELPERS
+  const handleSelectSection = (sec) => {
+    setSelectedSection(sec);
+    setEditingSectionData(JSON.parse(JSON.stringify(sec)));
+  };
+
+  const handleSaveCMSSection = async (e) => {
+    if (e) e.preventDefault();
+    if (!editingSectionData) return;
+    setLoading(true);
+    try {
+      const headers = { Authorization: `Bearer ${user.token}` };
+      const res = await axios.put(`http://localhost:4000/api/content-sections/${editingSectionData.key}`, editingSectionData, { headers });
+      triggerToast(`Section "${editingSectionData.title || editingSectionData.key}" sauvegardée !`, "success");
+      // Update local lists
+      setContentSections(prev => prev.map(sec => sec.key === editingSectionData.key ? res.data.data : sec));
+      setSelectedSection(res.data.data);
+    } catch (err) {
+      console.error(err);
+      triggerToast("Erreur de sauvegarde CMS", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddCMSButton = () => {
+    setEditingSectionData(prev => ({
+      ...prev,
+      buttons: [...(prev.buttons || []), { text: 'Nouveau bouton', link: '#', style: 'primary' }]
+    }));
+  };
+
+  const handleUpdateCMSButton = (index, field, value) => {
+    setEditingSectionData(prev => {
+      const updated = [...(prev.buttons || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, buttons: updated };
+    });
+  };
+
+  const handleDeleteCMSButton = (index) => {
+    setEditingSectionData(prev => ({
+      ...prev,
+      buttons: (prev.buttons || []).filter((_, idx) => idx !== index)
+    }));
+  };
+
+  const handleAddCMSCard = () => {
+    setEditingSectionData(prev => ({
+      ...prev,
+      cards: [...(prev.cards || []), { title: 'Nouvelle carte', desc: 'Description...', img: '', link: '', badge: '' }]
+    }));
+  };
+
+  const handleUpdateCMSCard = (index, field, value) => {
+    setEditingSectionData(prev => {
+      const updated = [...(prev.cards || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, cards: updated };
+    });
+  };
+
+  const handleMoveCMSCard = (index, direction) => {
+    setEditingSectionData(prev => {
+      const updated = [...(prev.cards || [])];
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= updated.length) return prev;
+      const temp = updated[index];
+      updated[index] = updated[targetIndex];
+      updated[targetIndex] = temp;
+      return { ...prev, cards: updated };
+    });
+  };
+
+  const handleDeleteCMSCard = (index) => {
+    setEditingSectionData(prev => ({
+      ...prev,
+      cards: (prev.cards || []).filter((_, idx) => idx !== index)
+    }));
+  };
+
+  const handleAddCMSItem = () => {
+    setEditingSectionData(prev => ({
+      ...prev,
+      items: [...(prev.items || []), { title: 'Nouvel item', desc: '', icon: '', val: '' }]
+    }));
+  };
+
+  const handleUpdateCMSItem = (index, field, value) => {
+    setEditingSectionData(prev => {
+      const updated = [...(prev.items || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, items: updated };
+    });
+  };
+
+  const handleDeleteCMSItem = (index) => {
+    setEditingSectionData(prev => ({
+      ...prev,
+      items: (prev.items || []).filter((_, idx) => idx !== index)
+    }));
+  };
+
+  const handleCMSImageSelect = (e, callback) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      triggerToast("L'image dépasse 2 Mo !", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      callback(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   // List Search Filters
   const filteredCitizens = citizens.filter(c => {
     const fullName = `${c.firstname} ${c.lastname}`.toLowerCase();
@@ -487,9 +693,9 @@ const AdminDashboard = () => {
       <aside className={`admin-sidebar ${mobileSidebarOpen ? 'open' : ''}`}>
         <div>
           <div className="admin-sidebar-brand">
-            <div className="admin-brand-logo-letter">D</div>
+            <img src="/logo_dembeni.svg" alt="Blason de Dembéni" className="admin-sidebar-logo-img-vector" />
             <div>
-              <span className="admin-brand-main-title">Dembéni Mairie</span>
+              <span className="admin-brand-main-title">DEMB<span className="accent-red">É</span>NI MAIRIE</span>
               <span className="admin-brand-sub-title">ADMINISTRATION</span>
             </div>
           </div>
@@ -501,6 +707,7 @@ const AdminDashboard = () => {
               { id: 'demandes', name: 'Gestion Démarches', icon: <FileText size={18} /> },
               { id: 'signalements', name: 'Signalements', icon: <AlertOctagon size={18} /> },
               { id: 'publications', name: 'Gestion Publications', icon: <Compass size={18} /> },
+              { id: 'cms', name: 'Gestion du contenu', icon: <Settings size={18} /> },
               { id: 'services', name: 'Services publics', icon: <Activity size={18} /> }
             ].map(tab => (
               <button
@@ -1025,7 +1232,7 @@ const AdminDashboard = () => {
                     <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>Toutes vos publications dynamiques apparaissent automatiquement sur les pages concernées du portail public.</p>
                   </div>
                   <button 
-                    onClick={() => { setPublicationForm({ title: '', content: '', type: 'actualite', category: 'Général', secondaryCategories: [], image: '', status: 'published', isFeatured: false, isPinned: false, isUrgent: false, showOnHomepage: false, tags: '', eventDate: '', eventLocation: '' }); setCurrentModal('add_publication'); }}
+                    onClick={() => { setSelectedImageFile(null); setImagePreviewUrl(''); setPublicationForm({ title: '', content: '', type: 'actualite', category: 'Général', secondaryCategories: [], image: '', status: 'published', isFeatured: false, isPinned: false, isUrgent: false, showOnHomepage: false, tags: '', eventDate: '', eventLocation: '' }); setCurrentModal('add_publication'); }}
                     className="btn-primary-gradient"
                     style={{ background: '#10b981', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)', padding: '10px 20px', fontWeight: 700 }}
                   >
@@ -1086,7 +1293,7 @@ const AdminDashboard = () => {
                     {filteredPublications.map(pub => (
                       <div key={pub._id} style={{ background: isDarkMode ? '#121824' : 'white', borderRadius: '20px', border: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column', textAlign: 'left', transition: 'all 0.3s ease' }}>
                         <div style={{ position: 'relative', height: '180px' }}>
-                          <img src={pub.image || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80'} alt={pub.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={pub.image ? (pub.image.startsWith('/public/') ? `http://localhost:4000${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80'} alt={pub.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: '800', background: pub.status === 'published' ? '#dcfce7' : '#fee2e2', color: pub.status === 'published' ? '#10b981' : '#ef4444', padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>
                               {pub.status === 'published' ? 'En ligne' : 'Brouillon'}
@@ -1125,7 +1332,7 @@ const AdminDashboard = () => {
                             </button>
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button 
-                                onClick={() => { setSelectedItem(pub); setPublicationForm({ title: pub.title, content: pub.content, type: pub.type, category: pub.category, secondaryCategories: pub.secondaryCategories || [], image: pub.image, status: pub.status, isFeatured: pub.isFeatured || false, isPinned: pub.isPinned || false, isUrgent: pub.isUrgent || false, showOnHomepage: pub.showOnHomepage || false, tags: pub.tags ? pub.tags.join(', ') : '', eventDate: pub.eventDate ? pub.eventDate.substring(0, 10) : '', eventLocation: pub.eventLocation || '' }); setCurrentModal('edit_publication'); }}
+                                onClick={() => { setSelectedItem(pub); setSelectedImageFile(null); setImagePreviewUrl(pub.image ? (pub.image.startsWith('/public/') ? 'http://localhost:4000' + pub.image : pub.image) : ''); setPublicationForm({ title: pub.title, description: pub.description || '', content: pub.content, type: pub.type, category: pub.category, secondaryCategories: pub.secondaryCategories || [], image: pub.image, status: pub.status, isFeatured: pub.isFeatured || false, isPinned: pub.isPinned || false, isUrgent: pub.isUrgent || false, showOnHomepage: pub.showOnHomepage || false, tags: pub.tags ? pub.tags.join(', ') : '', eventDate: pub.eventDate ? pub.eventDate.substring(0, 10) : '', eventLocation: pub.eventLocation || '', readingTime: pub.readingTime || 3 }); setCurrentModal('edit_publication'); }}
                                 style={{ padding: '6px 12px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1', background: 'transparent', borderRadius: '8px', color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                               >
                                 <Edit size={14} /> Éditer
@@ -1143,6 +1350,477 @@ const AdminDashboard = () => {
                     ))}
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {/* TAB 7: CMS DYNAMIQUE */}
+            {activeTab === 'cms' && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                key="cms"
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                  <div style={{ textAlign: 'left' }}>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: '900', color: isDarkMode ? 'white' : '#0f3c28', margin: 0 }}>
+                      Gestion du contenu du portail (CMS)
+                    </h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
+                      Personnalisez en temps réel l'ensemble des titres, textes, images et boutons des pages d'accueil et secondaires.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '24px', alignItems: 'start' }}>
+                  {/* Left Column: Sections List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ background: isDarkMode ? '#121824' : 'white', borderRadius: '16px', padding: '16px', border: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', textAlign: 'left' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Sections du portail
+                      </span>
+                    </div>
+
+                    {contentSections.map(sec => (
+                      <button
+                        key={sec.key}
+                        onClick={() => handleSelectSection(sec)}
+                        style={{
+                          background: selectedSection?.key === sec.key ? (isDarkMode ? '#0f3c28' : '#eafaf1') : (isDarkMode ? '#121824' : 'white'),
+                          borderColor: selectedSection?.key === sec.key ? '#10b981' : (isDarkMode ? '#1e293b' : '#e2e8f0'),
+                          borderWidth: '1.5px',
+                          borderStyle: 'solid',
+                          borderRadius: '16px',
+                          padding: '16px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          textAlign: 'left',
+                          transition: 'all 0.2s ease',
+                          width: '100%'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                          <span style={{ fontWeight: '800', fontSize: '0.92rem', color: selectedSection?.key === sec.key ? '#10b981' : (isDarkMode ? 'white' : '#0f172a') }}>
+                            {sec.title || sec.key}
+                          </span>
+                          <span style={{
+                            fontSize: '0.62rem',
+                            fontWeight: '800',
+                            padding: '3px 8px',
+                            borderRadius: '20px',
+                            background: sec.published ? '#dcfce7' : '#f1f5f9',
+                            color: sec.published ? '#10b981' : '#64748b',
+                            textTransform: 'uppercase'
+                          }}>
+                            {sec.published ? 'Publié' : 'Brouillon'}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {sec.description || 'Pas de description renseignée.'}
+                        </span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', borderTop: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#f1f5f9', paddingTop: '8px', marginTop: '4px', fontSize: '0.72rem', color: '#94a3b8' }}>
+                          <span>Identifiant: <code>{sec.key}</code></span>
+                          <span>Priorité: <strong>{sec.order || 0}</strong></span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Right Column: Content Editor */}
+                  {editingSectionData ? (
+                    <form onSubmit={handleSaveCMSSection} style={{ background: isDarkMode ? '#121824' : 'white', borderRadius: '24px', border: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px', textAlign: 'left' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#f1f5f9', paddingBottom: '16px' }}>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase' }}>Éditeur de Section CMS</span>
+                          <h4 style={{ fontSize: '1.25rem', fontWeight: '850', color: isDarkMode ? 'white' : '#0f3c28', margin: '4px 0 0 0' }}>
+                            Configuration : {editingSectionData.title || editingSectionData.key}
+                          </h4>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSection(selectedSection)}
+                            style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #cbd5e1', color: '#64748b', borderRadius: '10px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer' }}
+                          >
+                            Annuler les modifs
+                          </button>
+                          <button
+                            type="submit"
+                            style={{ padding: '8px 20px', background: '#10b981', border: 'none', color: 'white', borderRadius: '10px', fontSize: '0.82rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            <CheckCircle size={16} /> Enregistrer
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Accordion 1: Textes Généraux */}
+                      <div style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+                          1. Textes principaux de la section
+                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                          <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px', color: isDarkMode ? 'white' : '#1e293b' }}>Titre Principal *</label>
+                            <input
+                              type="text"
+                              value={editingSectionData.title || ''}
+                              onChange={e => setEditingSectionData({ ...editingSectionData, title: e.target.value })}
+                              required
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px', color: isDarkMode ? 'white' : '#1e293b' }}>Sous-titre / Slogan</label>
+                            <input
+                              type="text"
+                              value={editingSectionData.subtitle || ''}
+                              onChange={e => setEditingSectionData({ ...editingSectionData, subtitle: e.target.value })}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px', color: isDarkMode ? 'white' : '#1e293b' }}>Description / Corps de texte</label>
+                            <textarea
+                              rows="4"
+                              value={editingSectionData.description || ''}
+                              onChange={e => setEditingSectionData({ ...editingSectionData, description: e.target.value })}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Accordion 2: Visuels & Couleurs */}
+                      <div style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+                          2. Charte Visuelle & Arrière-plans
+                        </span>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                          <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px' }}>Couleur de Fond</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <input
+                                type="color"
+                                value={editingSectionData.bgColor && editingSectionData.bgColor.startsWith('#') ? editingSectionData.bgColor : '#ffffff'}
+                                onChange={e => setEditingSectionData({ ...editingSectionData, bgColor: e.target.value })}
+                                style={{ width: '40px', height: '40px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                              />
+                              <input
+                                type="text"
+                                value={editingSectionData.bgColor || ''}
+                                onChange={e => setEditingSectionData({ ...editingSectionData, bgColor: e.target.value })}
+                                placeholder="Ex: #ffffff ou transparent"
+                                style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px' }}>Couleur du Texte</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <input
+                                type="color"
+                                value={editingSectionData.textColor && editingSectionData.textColor.startsWith('#') ? editingSectionData.textColor : '#1e293b'}
+                                onChange={e => setEditingSectionData({ ...editingSectionData, textColor: e.target.value })}
+                                style={{ width: '40px', height: '40px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                              />
+                              <input
+                                type="text"
+                                value={editingSectionData.textColor || ''}
+                                onChange={e => setEditingSectionData({ ...editingSectionData, textColor: e.target.value })}
+                                placeholder="Ex: #1e293b"
+                                style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px' }}>Accentuation (Boutons)</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <input
+                                type="color"
+                                value={editingSectionData.primaryColor && editingSectionData.primaryColor.startsWith('#') ? editingSectionData.primaryColor : '#10b981'}
+                                onChange={e => setEditingSectionData({ ...editingSectionData, primaryColor: e.target.value })}
+                                style={{ width: '40px', height: '40px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                              />
+                              <input
+                                type="text"
+                                value={editingSectionData.primaryColor || ''}
+                                onChange={e => setEditingSectionData({ ...editingSectionData, primaryColor: e.target.value })}
+                                placeholder="Ex: #10b981"
+                                style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.8rem', fontWeight: '750', display: 'block', marginBottom: '6px' }}>Image d'Arrière-plan (URL ou import)</label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <input
+                              type="text"
+                              value={editingSectionData.bgImage || ''}
+                              onChange={e => setEditingSectionData({ ...editingSectionData, bgImage: e.target.value })}
+                              placeholder="URL de l'image (unsplash, etc.)"
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b' }}
+                            />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={e => handleCMSImageSelect(e, (base64) => setEditingSectionData({ ...editingSectionData, bgImage: base64 }))}
+                                style={{ fontSize: '0.8rem' }}
+                              />
+                              {editingSectionData.bgImage && (
+                                <div style={{ width: '120px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', background: '#ccc' }}>
+                                  <img src={editingSectionData.bgImage} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Accordion 3: Boutons Action */}
+                      <div style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase' }}>
+                            3. Boutons d'Action & Redirection
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleAddCMSButton}
+                            style={{ padding: '4px 10px', background: 'rgba(16,185,129,0.1)', color: '#10b981', border: 'none', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Plus size={14} /> Ajouter un bouton
+                          </button>
+                        </div>
+
+                        {(!editingSectionData.buttons || editingSectionData.buttons.length === 0) ? (
+                          <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b', textAlign: 'center' }}>Aucun bouton dans cette section.</p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {editingSectionData.buttons.map((btn, idx) => (
+                              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 1fr auto', gap: '12px', alignItems: 'center', background: isDarkMode ? '#121824' : 'white', padding: '10px', borderRadius: '10px', border: '1px solid #cbd5e1' }}>
+                                <input
+                                  type="text"
+                                  value={btn.text}
+                                  onChange={e => handleUpdateCMSButton(idx, 'text', e.target.value)}
+                                  placeholder="Texte du bouton"
+                                  style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                />
+                                <input
+                                  type="text"
+                                  value={btn.link}
+                                  onChange={e => handleUpdateCMSButton(idx, 'link', e.target.value)}
+                                  placeholder="Lien / Ancre (ex: /culture)"
+                                  style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                />
+                                <select
+                                  value={btn.style || 'primary'}
+                                  onChange={e => handleUpdateCMSButton(idx, 'style', e.target.value)}
+                                  style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                >
+                                  <option value="primary">Primaire (Vert Plein)</option>
+                                  <option value="secondary">Secondaire (Accent)</option>
+                                  <option value="outline">Outline (Contour)</option>
+                                </select>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCMSButton(idx)}
+                                  style={{ padding: '6px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Accordion 4: Cartes & Blocs */}
+                      <div style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase' }}>
+                            4. Cartes, Services & Articles
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleAddCMSCard}
+                            style={{ padding: '4px 10px', background: 'rgba(16,185,129,0.1)', color: '#10b981', border: 'none', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Plus size={14} /> Ajouter une carte
+                          </button>
+                        </div>
+
+                        {(!editingSectionData.cards || editingSectionData.cards.length === 0) ? (
+                          <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b', textAlign: 'center' }}>Aucune carte dans cette section.</p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {editingSectionData.cards.map((card, idx) => (
+                              <div key={idx} style={{ background: isDarkMode ? '#121824' : 'white', padding: '16px', borderRadius: '12px', border: '1.5px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#f1f5f9', paddingBottom: '8px' }}>
+                                  <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#10b981' }}>Carte #{idx + 1}</span>
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    <button
+                                      type="button"
+                                      disabled={idx === 0}
+                                      onClick={() => handleMoveCMSCard(idx, -1)}
+                                      style={{ padding: '4px 6px', background: 'transparent', color: isDarkMode ? 'white' : '#1e293b', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: idx === 0 ? 'not-allowed' : 'pointer' }}
+                                    >
+                                      ↑
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={idx === editingSectionData.cards.length - 1}
+                                      onClick={() => handleMoveCMSCard(idx, 1)}
+                                      style={{ padding: '4px 6px', background: 'transparent', color: isDarkMode ? 'white' : '#1e293b', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: idx === editingSectionData.cards.length - 1 ? 'not-allowed' : 'pointer' }}
+                                    >
+                                      ↓
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteCMSCard(idx)}
+                                      style={{ padding: '4px 8px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}
+                                    >
+                                      Supprimer
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                  <div>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Titre de la carte</label>
+                                    <input
+                                      type="text"
+                                      value={card.title || ''}
+                                      onChange={e => handleUpdateCMSCard(idx, 'title', e.target.value)}
+                                      style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Badge (Facultatif)</label>
+                                    <input
+                                      type="text"
+                                      value={card.badge || ''}
+                                      onChange={e => handleUpdateCMSCard(idx, 'badge', e.target.value)}
+                                      placeholder="Ex: NOUVEAU, URGENT"
+                                      style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Description</label>
+                                  <textarea
+                                    rows="2"
+                                    value={card.desc || ''}
+                                    onChange={e => handleUpdateCMSCard(idx, 'desc', e.target.value)}
+                                    style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                  />
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                  <div>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Lien de destination</label>
+                                    <input
+                                      type="text"
+                                      value={card.link || ''}
+                                      onChange={e => handleUpdateCMSCard(idx, 'link', e.target.value)}
+                                      placeholder="Lien (ex: /demarche/cni)"
+                                      style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Icône Lucide (Facultatif)</label>
+                                    <input
+                                      type="text"
+                                      value={card.icon || ''}
+                                      onChange={e => handleUpdateCMSCard(idx, 'icon', e.target.value)}
+                                      placeholder="Ex: Activity, Heart, Shield"
+                                      style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Image d'illustration (URL ou import)</label>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <input
+                                      type="text"
+                                      value={card.img || ''}
+                                      onChange={e => handleUpdateCMSCard(idx, 'img', e.target.value)}
+                                      placeholder="URL de l'image"
+                                      style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontSize: '0.8rem' }}
+                                    />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={e => handleCMSImageSelect(e, (base64) => handleUpdateCMSCard(idx, 'img', base64))}
+                                        style={{ fontSize: '0.75rem' }}
+                                      />
+                                      {card.img && (
+                                        <div style={{ width: '80px', height: '50px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                                          <img src={card.img} alt="Preview card" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Accordion 5: Paramètres de publication */}
+                      <div style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: '150px' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 800 }}>
+                            <input
+                              type="checkbox"
+                              checked={editingSectionData.published}
+                              onChange={e => setEditingSectionData({ ...editingSectionData, published: e.target.checked })}
+                            />
+                            🟢 Section visible en ligne (Publiée)
+                          </label>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: '800' }}>Ordre d'affichage :</label>
+                          <input
+                            type="number"
+                            value={editingSectionData.order || 0}
+                            onChange={e => setEditingSectionData({ ...editingSectionData, order: parseInt(e.target.value) || 0 })}
+                            style={{ width: '80px', padding: '6px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#121824' : 'white', color: isDarkMode ? 'white' : '#1e293b', fontWeight: 'bold' }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Form Submit Footer */}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#f1f5f9', paddingTop: '16px', marginTop: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectSection(selectedSection)}
+                          style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #cbd5e1', color: '#64748b', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
+                        >
+                          Réinitialiser
+                        </button>
+                        <button
+                          type="submit"
+                          style={{ padding: '10px 24px', background: '#10b981', border: 'none', color: 'white', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        >
+                          <CheckCircle size={16} /> Enregistrer et Publier
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div style={{ background: isDarkMode ? '#121824' : 'white', borderRadius: '24px', border: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', padding: '80px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                      <Settings size={48} style={{ color: '#94a3b8', marginBottom: '16px' }} />
+                      <h4 style={{ margin: 0, color: '#64748b', fontWeight: '800' }}>Veuillez sélectionner une section à configurer dans la colonne de gauche.</h4>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
 
@@ -1237,7 +1915,7 @@ const AdminDashboard = () => {
                   
                   <div style={{ background: isDarkMode ? '#121824' : 'white', borderRadius: '20px', border: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxWidth: '400px', margin: '0 auto', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}>
                     <div style={{ position: 'relative', height: '200px' }}>
-                      <img src={publicationForm.image || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80'} alt="Aperçu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={imagePreviewUrl || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80'} alt="Aperçu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
                         <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#dcfce7', color: '#10b981', padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>En ligne</span>
                         {publicationForm.isPinned && (
@@ -1334,18 +2012,113 @@ const AdminDashboard = () => {
                   )}
 
                   <div className="modal-form-group">
-                    <label>URL de l'image d'illustration</label>
-                    <input type="text" placeholder="https://images.unsplash.com/..." value={publicationForm.image} onChange={e => setPublicationForm({ ...publicationForm, image: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
-                    {publicationForm.image && (
-                      <div style={{ marginTop: '8px', borderRadius: '8px', overflow: 'hidden', height: '100px', width: '200px', border: '1px solid #cbd5e1' }}>
-                        <img src={publicationForm.image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    )}
+                    <label style={{ fontSize: '0.85rem', fontWeight: '800', display: 'block', marginBottom: '8px', color: isDarkMode ? '#cbd5e1' : '#475569' }}>Image d'illustration (Drag & Drop ou sélection) *</label>
+                    <div 
+                      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                      onDragLeave={() => setIsDragOver(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragOver(false);
+                        const file = e.dataTransfer.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                          setSelectedImageFile(file);
+                          setImagePreviewUrl(URL.createObjectURL(file));
+                        }
+                      }}
+                      style={{
+                        border: isDragOver ? '2px dashed #10b981' : '2px dashed #cbd5e1',
+                        borderRadius: '12px',
+                        padding: '24px',
+                        textAlign: 'center',
+                        background: isDragOver ? 'rgba(16,185,129,0.04)' : (isDarkMode ? '#1a2333' : '#f8fafc'),
+                        cursor: 'pointer',
+                        transition: 'all 0.25s ease',
+                        position: 'relative'
+                      }}
+                      onClick={() => document.getElementById('publication-image-input').click()}
+                    >
+                      <input 
+                        type="file" 
+                        id="publication-image-input" 
+                        accept=".jpg,.jpeg,.png,.webp" 
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setSelectedImageFile(file);
+                            setImagePreviewUrl(URL.createObjectURL(file));
+                          }
+                        }}
+                        style={{ display: 'none' }}
+                      />
+                      
+                      {imagePreviewUrl ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ position: 'relative', width: '100%', maxHeight: '200px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                            <img src={imagePreviewUrl} alt="Preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', background: '#000' }} />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedImageFile(null);
+                                setImagePreviewUrl('');
+                                setPublicationForm({ ...publicationForm, image: '' });
+                              }}
+                              style={{
+                                position: 'absolute',
+                                top: '8px',
+                                right: '8px',
+                                background: 'rgba(239, 68, 68, 0.9)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '28px',
+                                height: '28px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '1rem',
+                                fontWeight: 'bold'
+                              }}
+                              title="Supprimer l'image"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Glissez un fichier ou cliquez pour remplacer</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ color: '#94a3b8' }}>
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          </div>
+                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: isDarkMode ? '#cbd5e1' : '#475569' }}>Glissez-déposez une image ici, ou cliquez pour choisir</span>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Formats acceptés : JPG, JPEG, PNG, WEBP (Taille max non-limitée)</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="modal-form-group">
+                    <label>Résumé / Accroche (s'affiche en intro sur la page article)</label>
+                    <textarea rows="2" placeholder="Ex: La mairie annonce l'ouverture d'un nouveau centre sportif dans le quartier de Dembéni-Centre..." value={publicationForm.description || ''} onChange={e => setPublicationForm({ ...publicationForm, description: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', resize: 'vertical' }} />
                   </div>
 
                   <div className="modal-form-group">
                     <label>Contenu / Texte riche de la publication *</label>
                     <textarea rows="6" placeholder="Rédigez le texte officiel ici. Vous pouvez sauter des lignes pour aérer le document..." value={publicationForm.content} onChange={e => setPublicationForm({ ...publicationForm, content: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b' }} />
+                  </div>
+
+                  <div className="modal-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 800 }}>⏱ Temps de lecture estimé (minutes)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={publicationForm.readingTime || 3}
+                      onChange={e => setPublicationForm({ ...publicationForm, readingTime: parseInt(e.target.value) || 3 })}
+                      style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: isDarkMode ? '#1a2333' : 'white', color: isDarkMode ? 'white' : '#1e293b', width: '120px', fontWeight: 700 }}
+                    />
                   </div>
 
                   <div className="modal-form-group" style={{ background: isDarkMode ? '#1a2333' : '#f8fafc', padding: '14px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#e2e8f0', color: isDarkMode ? 'white' : '#1e293b', textAlign: 'left' }}>

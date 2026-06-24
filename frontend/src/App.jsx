@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './components/Home';
@@ -11,10 +11,29 @@ import AdminDashboard from './components/AdminDashboard';
 import Contact from './components/Contact';
 import SubPage from './components/SubPage';
 import NewsPage from './components/NewsPage';
+import NewsDetailPage from './components/NewsDetailPage';
 import SantePage from './components/SantePage';
+import DemarchesPage from './components/DemarchesPage';
+import ProjetPage from './components/ProjetPage';
+import ServicesPublicsPage from './components/ServicesPublicsPage';
 import { FileText, Hammer, Briefcase, Globe, Heart, Shield } from 'lucide-react';
+import { AuthContext } from './context/AuthContext';
+
 
 function App() {
+  const ProtectedRoute = ({ children, role }) => {
+    const { user } = useContext(AuthContext);
+    const location = useLocation();
+
+    if (!user) {
+      return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    }
+    if (role && user.role !== role) {
+      return <Navigate to={user.role === 'admin' ? '/admin' : '/compte'} replace />;
+    }
+    return children;
+  };
+
   const demarchesData = [
     { title: 'État Civil', description: 'Actes de naissance, mariage, décès et livret de famille.', icon: <FileText size={24}/> },
     { title: 'Identité', description: 'Demandes de passeport et carte nationale d\'identité.', icon: <Shield size={24}/> },
@@ -44,16 +63,31 @@ function App() {
             <Route path="/"          element={<Home />} />
             <Route path="/register"  element={<Register />} />
             <Route path="/user-login" element={<UserLogin />} />
-            <Route path="/compte"    element={<UserDashboard />} />
+            <Route
+              path="/compte"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/login"     element={<Login />} />
-            <Route path="/admin"     element={<AdminDashboard />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/contact"   element={<Contact />} />
             
             {/* New Sub-pages */}
-            <Route path="/demarches" element={<SubPage title="Démarches Administratives" subtitle="Retrouvez tous les services en ligne pour faciliter votre quotidien." items={demarchesData} category="Services publics" />} />
-            <Route path="/projet"    element={<SubPage title="Grands Projets" subtitle="Découvrez les chantiers qui façonnent le Dembéni de demain." items={projetsData} category="Développement local" />} />
-            <Route path="/services"  element={<SubPage title="Services Publics" subtitle="Une administration proche de vous, à votre écoute au quotidien." items={servicesData} category="Services publics" />} />
+            <Route path="/demarches" element={<DemarchesPage />} />
+            <Route path="/projet"    element={<ProjetPage />} />
+            <Route path="/services"  element={<ServicesPublicsPage />} />
             <Route path="/actualites" element={<NewsPage />} />
+            <Route path="/actualites/:slug" element={<NewsDetailPage />} />
             <Route path="/culture"    element={<SubPage title="Culture & Patrimoine" subtitle="Découvrez la richesse culturelle et historique de Dembéni." category="Culture" />} />
             <Route path="/solidarite" element={<SantePage />} />
             <Route path="/sante"      element={<SantePage />} />

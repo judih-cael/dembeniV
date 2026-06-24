@@ -14,31 +14,71 @@ const serviceSchema = new mongoose.Schema({
     },
     icon: {
         type: String,
-        default: 'Activity'
+        default: 'FileText'
     },
     img: {
         type: String,
-        default: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800'
+        default: ''
     },
     category: {
         type: String,
         required: [true, 'La catégorie est obligatoire']
     },
     location: {
-        type: String
+        type: String,
+        default: 'Hôtel de Ville de Dembéni'
     },
     hours: {
-        type: String
+        type: String,
+        default: 'Lundi au Vendredi : 8h00 - 12h00 / 13h30 - 16h00'
     },
     phone: {
-        type: String
+        type: String,
+        default: '0269 62 15 15'
     },
     email: {
-        type: String
+        type: String,
+        default: 'contact@dembeni.fr'
     },
-    benefits: {
+    delay: {
+        type: String,
+        default: '3 à 5 jours ouvrés'
+    },
+    onlineStatus: {
+        type: String,
+        default: 'Disponible en ligne'
+    },
+    badge: {
+        type: String,
+        default: 'En ligne'
+    },
+    documents: {
         type: [String],
         default: []
+    },
+    steps: {
+        type: [String],
+        default: []
+    },
+    faq: [{
+        question: { type: String, required: true },
+        answer: { type: String, required: true }
+    }],
+    formulaireUrls: [{
+        name: { type: String, required: true },
+        url: { type: String, required: true }
+    }],
+    associatedDemarches: [{
+        title: { type: String },
+        url: { type: String }
+    }],
+    order: {
+        type: Number,
+        default: 0
+    },
+    isVisible: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true

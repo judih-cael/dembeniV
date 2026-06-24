@@ -82,8 +82,8 @@ const Navbar = () => {
 
         {/* Centered Brand Logo */}
         <Link to="/" className="navbar-logo-prem center">
-          <span className="logo-badge-p">D</span>
-          <span className="logo-text-p">DEMBÉNI</span>
+          <img src="/logo_dembeni.svg" alt="Blason de Dembéni" className="navbar-logo-img-vector" />
+          <span className="logo-text-p">DEMB<span className="accent-red">É</span>NI</span>
         </Link>
 
         {/* Right Desktop Links & Action Button */}

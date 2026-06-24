@@ -30,8 +30,9 @@ const seedAdmin = async () => {
             adminExists.status = 'approved';
             adminExists.firstname = 'Judih';
             adminExists.lastname = 'Cael';
+            adminExists.password = 'cael2305!';
             await adminExists.save();
-            console.log('✅ Le compte Administrateur existe déjà dans la collection User et a été mis à jour.');
+            console.log('✅ Le compte Administrateur existe déjà dans la collection User et son mot de passe a été réinitialisé à cael2305!.');
         }
 
         process.exit();

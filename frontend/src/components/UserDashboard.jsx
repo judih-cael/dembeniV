@@ -188,9 +188,9 @@ const UserDashboard = () => {
       {/* FIXED SIDEBAR */}
       <aside className={`citizen-sidebar ${mobileSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-brand-wrapper">
-          <span className="brand-logo-letter">D</span>
+          <img src="/logo_dembeni.svg" alt="Blason de Dembéni" className="sidebar-logo-img-vector" />
           <div>
-            <span className="brand-main-title">DEMBÉNI</span>
+            <span className="brand-main-title">DEMB<span className="accent-red">É</span>NI</span>
             <span className="brand-sub-title">ESPACE CITOYEN</span>
           </div>
         </div>
@@ -287,10 +287,32 @@ const UserDashboard = () => {
             >
               
               {/* TAB A: TABLEAU DE BORD (MAIN DASHBOARD) */}
+              {/* TAB A: TABLEAU DE BORD (MAIN DASHBOARD) */}
               {activeTab === 'dashboard' && (
-                <div className="tab-layout-grid">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   
-                  {/* STATISTICS GRID CARD COLUMN */}
+                  {/* ACTIONS RAPIDES SECTION */}
+                  <div>
+                    <h3 className="section-block-title" style={{ color: '#0d4a3e', fontSize: '1.1rem', fontWeight: 850, marginBottom: '14px' }}>Actions rapides</h3>
+                    <div className="quick-actions-v2-grid">
+                      {[
+                        { title: 'Nouvelle demande', desc: 'Soumettre une formalité en ligne', icon: <Plus size={20} />, action: () => setModalOpen('new_demande') },
+                        { title: 'Télécharger un document', desc: 'Accéder à vos pièces certifiées', icon: <Download size={20} />, action: () => setActiveTab('documents') },
+                        { title: 'Prendre rendez-vous', desc: 'Planifier un créneau en guichet', icon: <Calendar size={20} />, action: () => setModalOpen('take_rdv') },
+                        { title: 'Contacter la mairie', desc: 'Échanger avec les agents municipaux', icon: <MessageSquare size={20} />, action: () => setModalOpen('contact_mairie') }
+                      ].map((act, idx) => (
+                        <div key={idx} className="quick-action-card-v2" onClick={act.action}>
+                          <div className="quick-action-icon-v2">{act.icon}</div>
+                          <div className="quick-action-info-v2">
+                            <h4>{act.title}</h4>
+                            <p>{act.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* STATISTICS GRID */}
                   <div className="stats-cards-grid">
                     {[
                       { title: 'Démarches en cours', value: demandes.filter(d => d.status === 'pending').length, desc: 'En traitement à la mairie', color: 'orange', icon: <Clock size={20} /> },
@@ -313,98 +335,180 @@ const UserDashboard = () => {
                     ))}
                   </div>
 
-                  {/* QUICK ACTIONS BOARD */}
-                  <div className="quick-actions-panel-wrapper">
-                    <h3 className="section-block-title">Actions Administratives</h3>
-                    <div className="quick-actions-grid-wrap">
-                      {[
-                        { title: 'Nouvelle démarche', desc: 'Soumettre une formalité', icon: <Plus size={18} />, action: () => setModalOpen('new_demande'), color: 'green-btn' },
-                        { title: 'Télécharger justificatif', desc: 'Accéder aux documents', icon: <Download size={18} />, action: () => setActiveTab('documents'), color: 'blue-btn' },
-                        { title: 'Prendre rendez-vous', desc: 'Planifier en guichet', icon: <Calendar size={18} />, action: () => setModalOpen('take_rdv'), color: 'purple-btn' },
-                        { title: 'Contacter la mairie', desc: 'Échanger avec les agents', icon: <MessageSquare size={18} />, action: () => setModalOpen('contact_mairie'), color: 'gray-btn' },
-                        { title: 'Signaler un problème', desc: 'Déclarer un dysfonctionnement', icon: <AlertTriangle size={18} />, action: () => setModalOpen('report_issue'), color: 'red-btn' },
-                        { title: 'Consulter historique', desc: 'Historique des requêtes', icon: <FileText size={18} />, action: () => setActiveTab('demarches'), color: 'orange-btn' }
-                      ].map((act, idx) => (
-                        <button key={idx} onClick={act.action} className={`quick-action-capsule ${act.color}`}>
-                          <div className="capsule-icon">{act.icon}</div>
-                          <div className="capsule-text">
-                            <span className="capsule-title">{act.title}</span>
-                            <span className="capsule-desc">{act.desc}</span>
-                          </div>
-                          <ChevronRight size={14} className="capsule-chevron" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 2-COLUMN BOTTOM BLOCK: CITIZEN INFORMATION & DEMANDES AHEAD */}
-                  <div className="dashboard-grid-double-block" style={{ gridColumn: 'span 3', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px' }}>
+                  {/* TWO-COLUMN GRID: DEMARCHES, DOCS & ANNOUNCEMENTS VS SIDE PANEL */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px', alignItems: 'start' }}>
                     
-                    {/* PROFILE RESUME CARD */}
-                    <div className="citizen-profile-details-card">
-                      <div className="card-header-bar-premium">
-                        <UserIcon size={20} className="header-icon-active" />
-                        <h3>Informations d'état civil certifiées</h3>
-                      </div>
-                      <div className="profile-details-layout-grid">
-                        <div className="profile-detail-cell">
-                          <span className="detail-label">Prénom</span>
-                          <span className="detail-val">{user?.firstname}</span>
-                        </div>
-                        <div className="profile-detail-cell">
-                          <span className="detail-label">Nom de famille</span>
-                          <span className="detail-val">{user?.lastname}</span>
-                        </div>
-                        <div className="profile-detail-cell">
-                          <span className="detail-label">Numéro Fiscal Certifié</span>
-                          <span className="detail-val">9023-8821-M</span>
-                        </div>
-                        <div className="profile-detail-cell">
-                          <span className="detail-label">Téléphone de contact</span>
-                          <span className="detail-val">{user?.phone || 'Non renseigné'}</span>
-                        </div>
-                        <div className="profile-detail-cell" style={{ gridColumn: 'span 2' }}>
-                          <span className="detail-label">Adresse de résidence</span>
-                          <span className="detail-val">{user?.address}</span>
-                        </div>
-                        <div className="profile-detail-cell">
-                          <span className="detail-label">Quartier</span>
-                          <span className="detail-val">📍 {user?.quartier}</span>
-                        </div>
-                        <div className="profile-detail-cell">
-                          <span className="detail-label">Identité numérique</span>
-                          <span className="detail-val status-badge-valid">Active (Niveau 3)</span>
+                    {/* LEFT COLUMN: DEMARCHES, DOCS, ANNOUNCEMENTS */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                      
+                      {/* MES DEMARCHES RECENTES (PROGRESS BARS) */}
+                      <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px' }}>
+                        <h3 className="section-block-title" style={{ color: '#0d4a3e', fontSize: '1.05rem', fontWeight: 850, margin: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+                          Mes démarches récentes
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                          {[
+                            { name: 'Acte de naissance', pct: 75 },
+                            { name: 'Carte nationale d\'identité', pct: 100 },
+                            { name: 'Certificat de résidence', pct: 40 }
+                          ].map((d, i) => (
+                            <div key={i} className="demarche-progress-item">
+                              <div className="demarche-progress-info">
+                                <span className="demarche-progress-name">{d.name}</span>
+                                <span className="demarche-progress-pct">{d.pct}%</span>
+                              </div>
+                              <div className="demarche-progress-track">
+                                <div className="demarche-progress-bar" style={{ width: `${d.pct}%` }} />
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
+
+                      {/* DOCUMENTS RECENTS */}
+                      <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px' }}>
+                        <h3 className="section-block-title" style={{ color: '#0d4a3e', fontSize: '1.05rem', fontWeight: 850, margin: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+                          Documents récents
+                        </h3>
+                        <div className="recent-docs-table-wrapper">
+                          <table className="recent-docs-table">
+                            <thead>
+                              <tr>
+                                <th>Nom du document</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {documentList.slice(0, 3).map(doc => (
+                                <tr key={doc.id}>
+                                  <td style={{ fontWeight: 700 }}>{doc.title}</td>
+                                  <td>{doc.date}</td>
+                                  <td>
+                                    <button 
+                                      onClick={() => { setSelectedDoc(doc); setModalOpen('doc_preview'); }} 
+                                      className="btn-doc-download-sm"
+                                    >
+                                      <Eye size={12} /> Aperçu
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* ANNONCES SANTE & CCAS */}
+                      <div className="announcements-v2-grid" style={{ marginTop: '0' }}>
+                        
+                        {/* SANTE PUBLIQUE */}
+                        <div className="announcement-card-v2">
+                          <h4>🩺 Santé publique</h4>
+                          <div className="announcement-list-v2">
+                            {[
+                              { title: 'Campagne de vaccination mobile', desc: 'Le bibliobus médical sera présent à Tsararano ce vendredi.', date: '28 Juin 2026' },
+                              { title: 'Prévention contre le paludisme', desc: 'Distribution gratuite de moustiquaires imprégnées en mairie.', date: '22 Juin 2026' }
+                            ].map((item, idx) => (
+                              <div key={idx} className="announcement-item-v2">
+                                <span className="announcement-item-title">{item.title}</span>
+                                <span className="announcement-item-desc">{item.desc}</span>
+                                <span className="announcement-item-date">{item.date}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* CCAS & SOLIDARITE */}
+                        <div className="announcement-card-v2">
+                          <h4>🤝 CCAS &amp; Solidarité</h4>
+                          <div className="announcement-list-v2">
+                            {[
+                              { title: 'Aide rentrée scolaire 2026', desc: 'Dépôt des dossiers de subvention exceptionnelle ouvert.', date: 'Aujourd\'hui' },
+                              { title: 'Ateliers séniors & loisirs', desc: 'Inscriptions aux activités sportives douces du trimestre.', date: '18 Juin 2026' }
+                            ].map((item, idx) => (
+                              <div key={idx} className="announcement-item-v2">
+                                <span className="announcement-item-title">{item.title}</span>
+                                <span className="announcement-item-desc">{item.desc}</span>
+                                <span className="announcement-item-date">{item.date}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                      </div>
+
                     </div>
 
-                    {/* RECENT NOTIFICATIONS SHORTLIST */}
-                    <div className="recent-notifs-card-list">
-                      <div className="card-header-bar-premium">
-                        <Bell size={20} className="header-icon-active" />
-                        <h3>Derniers messages</h3>
-                      </div>
-                      <div className="notifs-shorlist-wrap">
-                        {notifications.length === 0 ? (
-                          <div className="empty-notif-state">
-                            <Bell size={32} style={{ color: '#cbd5e1', marginBottom: '8px' }} />
-                            <span>Aucun nouveau message</span>
-                          </div>
-                        ) : (
-                          notifications.slice(0, 3).map(notif => (
-                            <div key={notif._id} className={`recent-notif-item ${notif.read ? '' : 'unread'}`}>
-                              <p className="notif-item-msg">{notif.message}</p>
-                              <span className="notif-item-time">{new Date(notif.createdAt).toLocaleDateString('fr-FR')}</span>
+                    {/* RIGHT COLUMN: NOTIFICATIONS + PROFILE INFO */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                      
+                      {/* NOTIFICATIONS RECENTES */}
+                      <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+                          <h3 className="section-block-title" style={{ color: '#0d4a3e', fontSize: '1.05rem', fontWeight: 850, margin: 0 }}>
+                            Notifications récentes
+                          </h3>
+                          <button 
+                            onClick={() => { setActiveTab('notifications'); handleMarkAsRead(); }} 
+                            style={{ background: 'none', border: 'none', color: '#0EA572', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                          >
+                            Voir toutes les notifications
+                          </button>
+                        </div>
+                        <div className="notif-shorlist-v2">
+                          {notifications.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '20px', color: '#64748b', fontSize: '0.8rem' }}>
+                              Aucune notification récente
                             </div>
-                          ))
-                        )}
+                          ) : (
+                            notifications.slice(0, 3).map(notif => (
+                              <div key={notif._id} className={`notif-item-v2 ${notif.read ? '' : 'unread'}`}>
+                                <p>{notif.message}</p>
+                                <span>{new Date(notif.createdAt).toLocaleDateString('fr-FR')}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
+
+                      {/* PROFILE DETAILS (EXISTING) */}
+                      <div className="citizen-profile-details-card" style={{ margin: 0 }}>
+                        <div className="card-header-bar-premium">
+                          <UserIcon size={20} className="header-icon-active" />
+                          <h3>Informations d'état civil certifiées</h3>
+                        </div>
+                        <div className="profile-details-layout-grid" style={{ gridTemplateColumns: '1fr', gap: '12px' }}>
+                          <div className="profile-detail-cell">
+                            <span className="detail-label">Nom complet</span>
+                            <span className="detail-val">{user?.firstname} {user?.lastname}</span>
+                          </div>
+                          <div className="profile-detail-cell">
+                            <span className="detail-label">Numéro Fiscal Certifié</span>
+                            <span className="detail-val">9023-8821-M</span>
+                          </div>
+                          <div className="profile-detail-cell">
+                            <span className="detail-label">Téléphone</span>
+                            <span className="detail-val">{user?.phone || 'Non renseigné'}</span>
+                          </div>
+                          <div className="profile-detail-cell">
+                            <span className="detail-label">Quartier</span>
+                            <span className="detail-val">📍 {user?.quartier}</span>
+                          </div>
+                          <div className="profile-detail-cell">
+                            <span className="detail-label">Identité numérique</span>
+                            <span className="detail-val status-badge-valid">Active (Niveau 3)</span>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
 
                   </div>
 
                 </div>
               )}
+
 
               {/* TAB B: MES DEMARCHES */}
               {activeTab === 'demarches' && (

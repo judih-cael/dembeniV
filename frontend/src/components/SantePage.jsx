@@ -10,6 +10,8 @@ const SantePage = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [newsList, setNewsList] = useState([]);
   const [isLoadingNews, setIsLoadingNews] = useState(true);
+  const [santeSection, setSanteSection] = useState(null);
+  const [isLoadingSection, setIsLoadingSection] = useState(true);
 
   useEffect(() => {
     const fetchSanteNews = async () => {
@@ -28,10 +30,106 @@ const SantePage = () => {
         setIsLoadingNews(false);
       }
     };
+
+    const fetchSanteSection = async () => {
+      try {
+        setIsLoadingSection(true);
+        const res = await fetch('http://localhost:4000/api/content-sections/sante_page');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success && data.data) {
+            setSanteSection(data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur de chargement CMS Santé", err);
+      } finally {
+        setIsLoadingSection(false);
+      }
+    };
+
     fetchSanteNews();
+    fetchSanteSection();
   }, []);
 
+  const getSanteValue = (field, fallback) => {
+    if (santeSection && santeSection[field] !== undefined && santeSection[field] !== null && santeSection[field] !== '') {
+      return santeSection[field];
+    }
+    return fallback;
+  };
+
+  const getIconComponent = (iconName) => {
+    const iconsMap = {
+      Activity: <Activity size={24} />,
+      Users: <Users size={24} />,
+      Shield: <Shield size={24} />,
+      CheckCircle: <CheckCircle size={24} />,
+      BookOpen: <BookOpen size={24} />,
+      Heart: <Heart size={24} />,
+      HeartHandshake: <HeartHandshake size={24} />,
+      Smile: <Smile size={24} />,
+      Sparkles: <Sparkles size={24} />,
+      Clock: <Clock size={24} />,
+      MapPin: <MapPin size={24} />,
+      Phone: <Phone size={24} />,
+      Calendar: <Calendar size={24} />
+    };
+    return iconsMap[iconName] || <Activity size={24} />;
+  };
+
   const medicalServices = [
+    {
+      title: "Centre de PMI & Vaccinations",
+      desc: "Consultations préventives, suivi vaccinal des enfants et accompagnement des jeunes familles par nos infirmières puéricultrices.",
+      fullDesc: "Le Centre de Protection Maternelle et Infantile (PMI) de Dembéni assure un suivi préventif et personnalisé de la santé des enfants de 0 à 6 ans ainsi que des femmes enceintes. Nos professionnels de santé organisent des séances de vaccination conformes au calendrier national, des consultations de suivi de croissance et des bilans développementaux réguliers.",
+      icon: <Heart size={24} />,
+      img: "/sante-pmi-vaccination.png",
+      category: "Prévention",
+      location: "Centre PMI d'Iloni, Dembéni",
+      hours: "Lundi au Vendredi : 8h00 - 16h00 | Permanences vaccins : Mercredi 8h30 - 16h00",
+      phone: "02 69 63 22 18",
+      email: "pmi.vaccinations@dembeni.fr",
+      benefits: [
+        "Vaccinations gratuites conformes au calendrier national",
+        "Suivi personnalisé de la croissance et du développement de l'enfant",
+        "Accompagnement et conseils parentaux par des sages-femmes diplômées"
+      ]
+    },
+    {
+      title: "Aide Sociale & CCAS",
+      desc: "Nos agents du CCAS vous accueillent et vous accompagnent dans toutes vos démarches administratives et sociales.",
+      fullDesc: "Le Centre Communal d'Action Sociale (CCAS) de Dembéni intervient quotidiennement en faveur des habitants en situation de vulnérabilité. Qu'il s'agisse d'une aide alimentaire d'urgence, d'un accompagnement dans la constitution de dossiers (CMU, AME, CAF), ou d'un suivi social durable, nos agents vous accueillent avec bienveillance, dans le respect de votre dignité et de votre confidentialité.",
+      icon: <Users size={24} />,
+      img: "/sante-ccas-aide-sociale.png",
+      category: "Social",
+      location: "Pôle Social & CCAS, Mairie de Dembéni",
+      hours: "Lundi au Jeudi : 8h00 - 15h30 | Vendredi : 8h00 - 11h30",
+      phone: "02 69 63 11 12",
+      email: "ccas@dembeni.fr",
+      benefits: [
+        "Aide alimentaire d'urgence pour les foyers modestes",
+        "Accompagnement gratuit pour les dossiers CMU, AME, CAF, retraite",
+        "Suivi social personnalisé et orientation vers les partenaires"
+      ]
+    },
+    {
+      title: "Animations Séniors",
+      desc: "Des activités collectives, ateliers conviviaux et sorties culturelles organisés chaque mois pour les personnes âgées de Dembéni.",
+      fullDesc: "Lutter contre l'isolement et préserver la vitalité de nos aînés est une mission cardinale de la commune. Le pôle Séniors organise chaque mois des ateliers créatifs, des sorties culturelles, des conférences de santé et des rencontres intergénérationnelles. Ces événements favorisent le lien social, stimulent l'éveil et garantissent à chaque aîné un accompagnement digne et chaleureux.",
+      icon: <Smile size={24} />,
+      img: "/sante-animations-seniors.png",
+      category: "Aînés",
+      location: "Salle des Associations de Dembéni et villages annexes",
+      hours: "Activités les Mardis et Jeudis : 9h00 - 12h00",
+      phone: "02 69 63 11 12",
+      email: "animations.seniors@dembeni.fr",
+      benefits: [
+        "Ateliers artistiques, mémoire et culture gratuits",
+        "Sorties et événements collectifs mensuels",
+        "Portage de repas et visites à domicile disponibles"
+      ]
+    },
     {
       title: "Centre de santé communal",
       desc: "Notre établissement principal de soins de proximité pour tous les administrés de Dembéni.",
@@ -271,20 +369,35 @@ const SantePage = () => {
     <div className="sante-page-wrapper">
       
       {/* 1. HERO SECTION */}
-      <section className="sante-hero">
+      <section className="sante-hero" style={
+        getSanteValue('bgImage', '') 
+          ? { backgroundImage: `url(${getSanteValue('bgImage', '')})` }
+          : {}
+      }>
         <div className="sante-hero-bg" />
         <div className="sante-hero-overlay" />
         <div className="sante-hero-content">
           <span className="sante-badge"><Heart size={14} /> Solidarité & Santé</span>
           <h1 className="sante-hero-title">
-            Une commune engagée pour le <span>bien-être</span> de tous
+            {getSanteValue('title', "Une commune engagée pour le bien-être de tous")}
           </h1>
           <p className="sante-hero-subtitle">
-            Dembéni met en place des services sociaux, d'accompagnement solidaire et de soins de santé de proximité pour accompagner chaque habitant à chaque étape de la vie.
+            {getSanteValue('subtitle', "Dembéni met en place des services sociaux, d'accompagnement solidaire et de soins de santé de proximité pour accompagner chaque habitant à chaque étape de la vie.")}
           </p>
           <div className="sante-hero-btns">
-            <a href="#urgences" className="btn-sante-primary">Urgences & Contacts</a>
-            <a href="#services" className="btn-sante-secondary">Nos services sociaux</a>
+            {getSanteValue('buttons', [
+              { text: "Urgences & Contacts", link: "#urgences", style: "primary" },
+              { text: "Nos services sociaux", link: "#services", style: "secondary" }
+            ]).map((btn, idx) => (
+              <a 
+                key={idx} 
+                href={btn.link} 
+                className={btn.style === 'primary' ? 'btn-sante-primary' : 'btn-sante-secondary'}
+                style={btn.style === 'primary' && getSanteValue('primaryColor', '') ? { background: getSanteValue('primaryColor', '') } : {}}
+              >
+                {btn.text}
+              </a>
+            ))}
           </div>
         </div>
       </section>
@@ -333,31 +446,50 @@ const SantePage = () => {
           <div className="section-header">
             <span className="section-tag"><Activity size={14} /> Services médico-sociaux</span>
             <h2 className="section-title-modern">Des soins de <span>santé de proximité</span></h2>
-            <p className="section-subtitle-modern">Explorez l'éventail de prestations médicales et d'assistances mises en place par la commune de Dembéni.</p>
+            <p className="section-subtitle-modern">{getSanteValue('description', "Explorez l'éventail de prestations médicales et d'assistances mises en place par la commune de Dembéni.")}</p>
           </div>
 
           <div className="sante-services-grid">
-            {medicalServices.map((service, index) => (
-              <div key={index} className="sante-service-card">
-                <div className="sante-card-img-wrap">
-                  <img src={service.img} alt={service.title} className="sante-card-img" />
-                  <span className="sante-card-category-badge">{service.category}</span>
-                </div>
-                <div className="sante-card-content">
-                  <div className="sante-card-icon-title">
-                    <span className="sante-card-icon">{service.icon}</span>
-                    <h3>{service.title}</h3>
+            {getSanteValue('cards', medicalServices).map((service, index) => {
+              const icon = typeof service.icon === 'string' ? getIconComponent(service.icon) : service.icon;
+              // CMS cards use 'image', local cards use 'img' — resolve whichever is available
+              const imgSrc = service.img || service.image || null;
+              const fallbackImg = 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800';
+              return (
+                <div key={index} className="sante-service-card">
+                  <div className="sante-card-img-wrap">
+                    {imgSrc ? (
+                      <img
+                        src={imgSrc}
+                        alt={service.title}
+                        className="sante-card-img"
+                        onError={(e) => { e.target.onerror = null; e.target.src = fallbackImg; }}
+                      />
+                    ) : (
+                      <img
+                        src={fallbackImg}
+                        alt={service.title}
+                        className="sante-card-img"
+                      />
+                    )}
+                    <span className="sante-card-category-badge">{service.category}</span>
                   </div>
-                  <p>{service.desc}</p>
-                  <button 
-                    className="sante-card-btn-more"
-                    onClick={() => setSelectedService(service)}
-                  >
-                    En savoir plus <ArrowRight size={16} />
-                  </button>
+                  <div className="sante-card-content">
+                    <div className="sante-card-icon-title">
+                      <span className="sante-card-icon">{icon}</span>
+                      <h3>{service.title}</h3>
+                    </div>
+                    <p>{service.desc || service.description}</p>
+                    <button 
+                      className="sante-card-btn-more"
+                      onClick={() => setSelectedService({ ...service, img: imgSrc || fallbackImg })}
+                    >
+                      En savoir plus <ArrowRight size={16} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -473,7 +605,7 @@ const SantePage = () => {
               {newsList.map((pub) => (
                 <div key={pub._id} className="sante-service-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '20px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                   <div className="sante-card-img-wrap" style={{ height: '200px', position: 'relative' }}>
-                    <img src={pub.image || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800'} alt={pub.title} className="sante-card-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={pub.image ? (pub.image.startsWith('/public/') ? `http://localhost:4000${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800'} alt={pub.title} className="sante-card-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     {pub.isUrgent && (
                       <span style={{ position: 'absolute', top: '12px', right: '12px', background: '#ef4444', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800 }}>🚨 ALERTE</span>
                     )}
@@ -632,7 +764,13 @@ const SantePage = () => {
                 
                 <h3><Award size={18} /> Vos avantages & Points clés</h3>
                 <ul className="sante-modal-benefits">
-                  {selectedService.benefits && selectedService.benefits.map((benefit, i) => (
+                  {(selectedService.benefits && (
+                    Array.isArray(selectedService.benefits) 
+                      ? selectedService.benefits 
+                      : typeof selectedService.benefits === 'string' 
+                        ? selectedService.benefits.split(',').map(s => s.trim()) 
+                        : []
+                  )).map((benefit, i) => (
                     <li key={i}>
                       <CheckCircle size={16} className="benefit-check-icon" />
                       <span>{benefit}</span>
