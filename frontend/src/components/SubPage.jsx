@@ -11,7 +11,7 @@ const SubPage = ({ title, subtitle, items = [], category }) => {
     const fetchCategoryPubs = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:4000/api/publications?category=${encodeURIComponent(category)}&status=published`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?category=${encodeURIComponent(category)}&status=published`);
         if (response.ok) {
           const data = await response.json();
           if (data && data.success && Array.isArray(data.data)) {

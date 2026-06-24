@@ -101,7 +101,7 @@ const DemarchesPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:4000/api/services');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/services`);
       if (res.data && res.data.success) {
         setServices(res.data.data);
       }
@@ -116,7 +116,7 @@ const DemarchesPage = () => {
   const fetchPublications = async () => {
     try {
       setPubsLoading(true);
-      const res = await axios.get('http://localhost:4000/api/publications?category=Services publics&status=published');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/publications?category=Services publics&status=published`);
       if (res.data && res.data.success) {
         setPublications(res.data.data);
       }
@@ -129,7 +129,7 @@ const DemarchesPage = () => {
 
   const fetchPageContent = async () => {
     try {
-      const res = await axios.get('http://localhost:4000/api/content-sections/demarches_page');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/demarches_page`);
       if (res.data && res.data.success && res.data.data) {
         const doc = res.data.data;
         setPageContent({
@@ -184,13 +184,13 @@ const DemarchesPage = () => {
       };
 
       if (activeAdminModal === 'add_service') {
-        const res = await axios.post('http://localhost:4000/api/services', payload, { headers });
+        const res = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/services`, payload, { headers });
         if (res.data.success) {
           triggerToast("Démarche ajoutée avec succès");
           setServices([...services, res.data.data]);
         }
       } else {
-        const res = await axios.put(`http://localhost:4000/api/services/${selectedItem._id}`, payload, { headers });
+        const res = await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/services/${selectedItem._id}`, payload, { headers });
         if (res.data.success) {
           triggerToast("Démarche mise à jour");
           setServices(services.map(s => s._id === selectedItem._id ? res.data.data : s));
@@ -208,7 +208,7 @@ const DemarchesPage = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette démarche ?")) return;
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.delete(`http://localhost:4000/api/services/${id}`, { headers });
+      await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/services/${id}`, { headers });
       triggerToast("Démarche supprimée");
       setServices(services.filter(s => s._id !== id));
       if (selectedService?._id === id) setSelectedService(null);
@@ -244,13 +244,13 @@ const DemarchesPage = () => {
       }
 
       if (activeAdminModal === 'add_pub') {
-        const res = await axios.post('http://localhost:4000/api/publications', formData, { headers });
+        const res = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/publications`, formData, { headers });
         if (res.data.success) {
           triggerToast("Actualité publiée avec succès");
           setPublications([res.data.data, ...publications]);
         }
       } else {
-        const res = await axios.put(`http://localhost:4000/api/publications/${selectedItem._id}`, formData, { headers });
+        const res = await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/publications/${selectedItem._id}`, formData, { headers });
         if (res.data.success) {
           triggerToast("Actualité mise à jour");
           setPublications(publications.map(p => p._id === selectedItem._id ? res.data.data : p));
@@ -270,7 +270,7 @@ const DemarchesPage = () => {
     if (!window.confirm("Supprimer cette actualité ?")) return;
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.delete(`http://localhost:4000/api/publications/${id}`, { headers });
+      await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/publications/${id}`, { headers });
       triggerToast("Actualité supprimée");
       setPublications(publications.filter(p => p._id !== id));
     } catch (err) {
@@ -294,7 +294,7 @@ const DemarchesPage = () => {
           { text: pageContent.btn2Text, style: 'secondary' }
         ]
       };
-      await axios.put('http://localhost:4000/api/content-sections/demarches_page', payload, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/demarches_page`, payload, { headers });
       triggerToast("Contenu de la page mis à jour !");
       setActiveAdminModal(null);
     } catch (err) {
@@ -311,7 +311,7 @@ const DemarchesPage = () => {
             { text: pageContent.btn2Text, style: 'secondary' }
           ]
         };
-        await axios.post('http://localhost:4000/api/content-sections', payload, { headers });
+        await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/content-sections`, payload, { headers });
         triggerToast("Contenu de la page initialisé et enregistré !");
         setActiveAdminModal(null);
       } catch (postErr) {
@@ -890,7 +890,7 @@ const DemarchesPage = () => {
               >
                 <div style={{ height: '180px', position: 'relative', width: '100%', background: '#eaeaea' }}>
                   <img 
-                    src={pub.image ? (pub.image.startsWith('/public/') ? `http://localhost:4000${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80'} 
+                    src={pub.image ? (pub.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80'} 
                     alt={pub.title} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                   />
@@ -938,7 +938,7 @@ const DemarchesPage = () => {
                             tags: pub.tags ? pub.tags.join(', ') : ''
                           });
                           setSelectedFile(null);
-                          setFilePreview(pub.image ? (pub.image.startsWith('/public/') ? `http://localhost:4000${pub.image}` : pub.image) : '');
+                          setFilePreview(pub.image ? (pub.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${pub.image}` : pub.image) : '');
                           setActiveAdminModal('edit_pub');
                         }}
                         style={{ flex: 1, padding: '6px 0', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '750', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}

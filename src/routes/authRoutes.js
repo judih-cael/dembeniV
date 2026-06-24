@@ -16,18 +16,19 @@ const {
     loginLimiter
 } = require('../middleware/rateLimitMiddleware');
 const uploadProfile = require('../middleware/uploadProfileMiddleware');
+const { validate, authValidators } = require('../middleware/validateMiddleware');
 
 // Public routes
-router.post('/register', uploadProfile.single('profileImage'), registerUser);
-router.post('/login', loginLimiter, loginUser);
+router.post('/register', uploadProfile.single('profileImage'), validate(authValidators.register), registerUser);
+router.post('/login', loginLimiter, validate(authValidators.login), loginUser);
 
 // Protected routes
 router.get('/profile', protect, getUserProfile);
 
 // Password reset flow (rate limited)
-router.post('/forgot-password', forgotPasswordLimiter, forgotPassword);
-router.post('/verify-otp',      resetPasswordLimiter,  verifyOtp);
-router.post('/reset-password',  resetPasswordLimiter,  resetPassword);
+router.post('/forgot-password', forgotPasswordLimiter, validate(authValidators.forgotPassword), forgotPassword);
+router.post('/verify-otp',      resetPasswordLimiter,  validate(authValidators.verifyOtp),  verifyOtp);
+router.post('/reset-password',  resetPasswordLimiter,  validate(authValidators.resetPassword),  resetPassword);
 
 // Admin/Cron utility
 router.delete('/cleanup-expired', protect, cleanupExpiredCodes);

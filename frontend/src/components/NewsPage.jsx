@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, ArrowRight, Newspaper, Tag, X, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUrl';
 
 const CATEGORIES = ['Tous', 'Santé & Solidarité', 'Vie municipale', 'Travaux', 'Événements', 'Culture', 'Environnement', 'Services publics', 'Jeunesse'];
 
@@ -85,7 +86,7 @@ const NewsPage = () => {
 
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/publications?status=published')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?status=published`)
       .then(res => res.json())
       .then(data => {
         if (data && data.success && Array.isArray(data.data)) {
@@ -252,7 +253,7 @@ const NewsPage = () => {
                       className="news-hero-card"
                       style={{ marginBottom: '40px' }}
                     >
-                      <div className="news-hero-image" style={{ backgroundImage: `url(${featuredItem.image || featuredItem.coverImage || FALLBACK_IMG})` }} />
+                      <div className="news-hero-image" style={{ backgroundImage: `url(${getImageUrl(featuredItem.image, featuredItem.coverImage || FALLBACK_IMG)})` }} />
                       <div className="news-hero-overlay" />
 
                       <div className="news-hero-content">
@@ -297,9 +298,10 @@ const NewsPage = () => {
                       >
                         <div className="news-card-image-wrap">
                           <img
-                            src={item.image ? (item.image.startsWith('/public/') ? `http://localhost:4000${item.image}` : item.image) : (item.coverImage || FALLBACK_IMG)}
+                            src={getImageUrl(item.image, item.coverImage || FALLBACK_IMG)}
                             alt={item.title}
                             className="news-card-image"
+                            onError={(e) => { e.target.src = FALLBACK_IMG; }}
                           />
                           <div className="news-card-image-overlay" />
                           <span className="news-card-badge-floating">

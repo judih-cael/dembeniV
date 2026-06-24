@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 const AdminDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -140,28 +141,28 @@ const AdminDashboard = () => {
       const headers = { Authorization: `Bearer ${user.token}` };
       
       // Fetch Stats
-      const resStats = await axios.get('http://localhost:4000/api/admin/stats', { headers });
+      const resStats = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/stats`, { headers });
       setStats(resStats.data.data);
 
       // Fetch Citizens
-      const resUsers = await axios.get('http://localhost:4000/api/admin/users', { headers });
+      const resUsers = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/users`, { headers });
       setCitizens(resUsers.data.data);
 
       // Fetch Demands
-      const resDemands = await axios.get('http://localhost:4000/api/admin/demandes', { headers });
+      const resDemands = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/demandes`, { headers });
       setDemandes(resDemands.data.data);
 
       // Fetch Publications (CMS Global Dynamique)
-      const resPubs = await axios.get('http://localhost:4000/api/publications', { headers });
+      const resPubs = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/publications`, { headers });
       setPublications(resPubs.data.data);
 
       // Fetch Services
-      const resServices = await axios.get('http://localhost:4000/api/services');
+      const resServices = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/services`);
       setServices(resServices.data.data);
 
       // Fetch CMS Content Sections
       try {
-        const resContent = await axios.get('http://localhost:4000/api/content-sections');
+        const resContent = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/content-sections`);
         if (resContent.data && resContent.data.success) {
           setContentSections(resContent.data.data);
           // Auto-select first section if none selected
@@ -204,7 +205,7 @@ const AdminDashboard = () => {
   const handleValidateCitizen = async (id) => {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.put(`http://localhost:4000/api/admin/users/${id}/validate`, {}, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/admin/users/${id}/validate`, {}, { headers });
       triggerToast("Identité citoyenne validée avec succès");
       fetchAllData(true);
     } catch (err) {
@@ -216,7 +217,7 @@ const AdminDashboard = () => {
   const handleRejectCitizen = async (id) => {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.put(`http://localhost:4000/api/admin/users/${id}/reject`, {}, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/admin/users/${id}/reject`, {}, { headers });
       triggerToast("Demande citoyenne rejetée", "error");
       fetchAllData(true);
     } catch (err) {
@@ -229,7 +230,7 @@ const AdminDashboard = () => {
     if (!window.confirm('Voulez-vous vraiment supprimer définitivement cet utilisateur ?')) return;
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.delete(`http://localhost:4000/api/admin/users/${id}`, { headers });
+      await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/admin/users/${id}`, { headers });
       triggerToast("Compte citoyen supprimé");
       fetchAllData(true);
     } catch (err) {
@@ -275,7 +276,7 @@ const AdminDashboard = () => {
         formData.append('image', selectedImageFile);
       }
 
-      await axios.post('http://localhost:4000/api/publications', formData, { headers });
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/publications`, formData, { headers });
       setCurrentModal(null);
       setSelectedImageFile(null);
       setImagePreviewUrl('');
@@ -343,7 +344,7 @@ const AdminDashboard = () => {
         formData.append('image', publicationForm.image || '');
       }
 
-      await axios.put(`http://localhost:4000/api/publications/${selectedItem._id}`, formData, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/publications/${selectedItem._id}`, formData, { headers });
       setCurrentModal(null);
       setSelectedItem(null);
       setSelectedImageFile(null);
@@ -378,7 +379,7 @@ const AdminDashboard = () => {
     if (!window.confirm('Voulez-vous vraiment supprimer définitivement cette publication ?')) return;
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.delete(`http://localhost:4000/api/publications/${id}`, { headers });
+      await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/publications/${id}`, { headers });
       triggerToast("Publication supprimée définitivement");
       fetchAllData(true);
     } catch (err) {
@@ -391,7 +392,7 @@ const AdminDashboard = () => {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
       const newStatus = item.status === 'published' ? 'draft' : 'published';
-      await axios.put(`http://localhost:4000/api/publications/${item._id}`, { status: newStatus }, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/publications/${item._id}`, { status: newStatus }, { headers });
       triggerToast(`Statut changé à : ${newStatus === 'published' ? 'Publié' : 'Brouillon'}`);
       fetchAllData(true);
     } catch (err) {
@@ -424,7 +425,7 @@ const AdminDashboard = () => {
     };
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.post('http://localhost:4000/api/services', formatted, { headers });
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/services`, formatted, { headers });
       setCurrentModal(null);
       setServiceForm({ title: '', desc: '', fullDesc: '', category: 'Soins', img: '', location: '', hours: '', phone: '', email: '', benefits: '' });
       triggerToast("Nouveau service public créé");
@@ -443,7 +444,7 @@ const AdminDashboard = () => {
     };
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.put(`http://localhost:4000/api/services/${selectedItem._id}`, formatted, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/services/${selectedItem._id}`, formatted, { headers });
       setCurrentModal(null);
       setSelectedItem(null);
       setServiceForm({ title: '', desc: '', fullDesc: '', category: 'Soins', img: '', location: '', hours: '', phone: '', email: '', benefits: '' });
@@ -459,7 +460,7 @@ const AdminDashboard = () => {
     if (!window.confirm('Voulez-vous supprimer ce service ?')) return;
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.delete(`http://localhost:4000/api/services/${id}`, { headers });
+      await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/services/${id}`, { headers });
       triggerToast("Service public archivé");
       fetchAllData(true);
     } catch (err) {
@@ -473,7 +474,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.post(`http://localhost:4000/api/admin/demandes/${selectedItem._id}/respond`, respondForm, { headers });
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/admin/demandes/${selectedItem._id}/respond`, respondForm, { headers });
       setCurrentModal(null);
       setSelectedItem(null);
       setRespondForm({ message: '', status: 'approved' });
@@ -508,7 +509,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      const res = await axios.put(`http://localhost:4000/api/content-sections/${editingSectionData.key}`, editingSectionData, { headers });
+      const res = await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/${editingSectionData.key}`, editingSectionData, { headers });
       triggerToast(`Section "${editingSectionData.title || editingSectionData.key}" sauvegardée !`, "success");
       // Update local lists
       setContentSections(prev => prev.map(sec => sec.key === editingSectionData.key ? res.data.data : sec));
@@ -1293,7 +1294,7 @@ const AdminDashboard = () => {
                     {filteredPublications.map(pub => (
                       <div key={pub._id} style={{ background: isDarkMode ? '#121824' : 'white', borderRadius: '20px', border: '1px solid', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column', textAlign: 'left', transition: 'all 0.3s ease' }}>
                         <div style={{ position: 'relative', height: '180px' }}>
-                          <img src={pub.image ? (pub.image.startsWith('/public/') ? `http://localhost:4000${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80'} alt={pub.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={getImageUrl(pub.image, 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80')} alt={pub.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&w=800&q=80'; }} />
                           <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: '800', background: pub.status === 'published' ? '#dcfce7' : '#fee2e2', color: pub.status === 'published' ? '#10b981' : '#ef4444', padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>
                               {pub.status === 'published' ? 'En ligne' : 'Brouillon'}
@@ -1332,7 +1333,7 @@ const AdminDashboard = () => {
                             </button>
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button 
-                                onClick={() => { setSelectedItem(pub); setSelectedImageFile(null); setImagePreviewUrl(pub.image ? (pub.image.startsWith('/public/') ? 'http://localhost:4000' + pub.image : pub.image) : ''); setPublicationForm({ title: pub.title, description: pub.description || '', content: pub.content, type: pub.type, category: pub.category, secondaryCategories: pub.secondaryCategories || [], image: pub.image, status: pub.status, isFeatured: pub.isFeatured || false, isPinned: pub.isPinned || false, isUrgent: pub.isUrgent || false, showOnHomepage: pub.showOnHomepage || false, tags: pub.tags ? pub.tags.join(', ') : '', eventDate: pub.eventDate ? pub.eventDate.substring(0, 10) : '', eventLocation: pub.eventLocation || '', readingTime: pub.readingTime || 3 }); setCurrentModal('edit_publication'); }}
+                                onClick={() => { setSelectedItem(pub); setSelectedImageFile(null); setImagePreviewUrl(pub.image ? (pub.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}` + pub.image : pub.image) : ''); setPublicationForm({ title: pub.title, description: pub.description || '', content: pub.content, type: pub.type, category: pub.category, secondaryCategories: pub.secondaryCategories || [], image: pub.image, status: pub.status, isFeatured: pub.isFeatured || false, isPinned: pub.isPinned || false, isUrgent: pub.isUrgent || false, showOnHomepage: pub.showOnHomepage || false, tags: pub.tags ? pub.tags.join(', ') : '', eventDate: pub.eventDate ? pub.eventDate.substring(0, 10) : '', eventLocation: pub.eventLocation || '', readingTime: pub.readingTime || 3 }); setCurrentModal('edit_publication'); }}
                                 style={{ padding: '6px 12px', border: '1px solid', borderColor: isDarkMode ? '#2e3b4e' : '#cbd5e1', background: 'transparent', borderRadius: '8px', color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                               >
                                 <Edit size={14} /> Éditer

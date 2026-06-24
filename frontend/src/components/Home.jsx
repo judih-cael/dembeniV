@@ -90,7 +90,7 @@ const Home = () => {
   useEffect(() => {
     const fetchContentSections = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/content-sections');
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections`);
         if (res.ok) {
           const data = await res.json();
           if (data && data.success && Array.isArray(data.data)) {
@@ -178,7 +178,7 @@ const Home = () => {
     const fetchPublications = async () => {
       try {
         setIsLoadingCMS(true);
-        const response = await fetch('http://localhost:4000/api/publications?status=published');
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?status=published`);
         
         if (!response.ok) {
           throw new Error(`API a répondu avec le statut ${response.status}`);
@@ -994,7 +994,7 @@ const Home = () => {
                   {/* 1. SECTION HERO ACTUALITÉS */}
                   {featuredItem ? (
                     <div className="news-hero-card">
-                      <div className="news-hero-image" style={{ backgroundImage: `url(${featuredItem.image ? (featuredItem.image.startsWith('/public/') ? 'http://localhost:4000' + featuredItem.image : featuredItem.image) : (featuredItem.coverImage || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=1200')})` }} />
+                      <div className="news-hero-image" style={{ backgroundImage: `url(${featuredItem.image ? (featuredItem.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}` + featuredItem.image : featuredItem.image) : (featuredItem.coverImage || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=1200')})` }} />
                       <div className="news-hero-overlay" />
                       
                       <div className="news-hero-content">
@@ -1061,7 +1061,7 @@ const Home = () => {
                         <div key={item._id} className="news-card-premium">
                           <div className="news-card-image-wrap">
                             <img 
-                              src={item.image ? (item.image.startsWith('/public/') ? 'http://localhost:4000' + item.image : item.image) : (item.coverImage || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=600')} 
+                              src={item.image ? (item.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}` + item.image : item.image) : (item.coverImage || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=600')} 
                               alt={item.title} 
                               className="news-card-image"
                             />
@@ -1113,7 +1113,7 @@ const Home = () => {
                           className="sidebar-horizontal-card"
                         >
                           <div className="sidebar-mini-img-wrap">
-                            <img src={item.image ? (item.image.startsWith('/public/') ? 'http://localhost:4000' + item.image : item.image) : (item.coverImage || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=400')} className="sidebar-mini-img" alt={item.title} />
+                            <img src={item.image ? (item.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}` + item.image : item.image) : (item.coverImage || 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=400')} className="sidebar-mini-img" alt={item.title} />
                           </div>
                           
                           <div className="sidebar-mini-content">

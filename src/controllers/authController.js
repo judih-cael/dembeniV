@@ -180,7 +180,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // ── Profile image path (Multer) ───────────────────────────────────────────
     const profileImage = req.file
-        ? `/public/uploads/profiles/${req.file.filename}`
+        ? req.file.path
         : '';
 
     // ── Create user ───────────────────────────────────────────────────────────

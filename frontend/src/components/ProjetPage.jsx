@@ -98,7 +98,7 @@ const ProjetPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const projetsRes = await fetch('http://localhost:4000/api/projets?published=all');
+      const projetsRes = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/projets?published=all`);
       const projetsData = await projetsRes.json();
       
       if (projetsData.success) {
@@ -114,7 +114,7 @@ const ProjetPage = () => {
       }
 
       // Fetch statistics
-      const statsRes = await fetch('http://localhost:4000/api/projets/stats');
+      const statsRes = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/projets/stats`);
       const statsData = await statsRes.json();
       if (statsData.success) {
         // Compute sum of budgets if they are formatted like "12,5 M€" or "3,2 M€"
@@ -135,7 +135,7 @@ const ProjetPage = () => {
       }
 
       // Fetch config if saved in content sections
-      const configRes = await fetch('http://localhost:4000/api/content-sections/projets_page');
+      const configRes = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/projets_page`);
       if (configRes.ok) {
         const configData = await configRes.json();
         if (configData.success && configData.data) {
@@ -167,7 +167,7 @@ const ProjetPage = () => {
     }
     const fetchRelatedNews = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/publications?status=published`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?status=published`);
         const data = await res.json();
         if (data.success) {
           const projectKeywords = activeProject.title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
@@ -212,11 +212,11 @@ const ProjetPage = () => {
   const removeExistingGalleryImage = async (imagePath) => {
     if (!window.confirm('Voulez-vous supprimer cette image de la galerie ?')) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/projets/${editingId}/gallery`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/projets/${editingId}/gallery`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
         body: JSON.stringify({ imagePath })
       });
@@ -270,7 +270,7 @@ const ProjetPage = () => {
     setFormEndDate(p.endDate ? p.endDate.split('T')[0] : '');
     setFormIsFeatured(p.isFeatured || false);
     setFormImage(null);
-    setFormImagePreview(p.image ? `http://localhost:4000${p.image}` : '');
+    setFormImagePreview(p.image ? `${import.meta.env.VITE_API_URL || ''}${p.image}` : '');
     setFormObjectives(p.objectives && p.objectives.length > 0 ? p.objectives : ['']);
     setFormTimeline(p.timeline && p.timeline.length > 0 ? p.timeline : [{ label: '', date: '', done: false }]);
     setFormDocuments(p.documents && p.documents.length > 0 ? p.documents : [{ name: '', url: '' }]);
@@ -319,15 +319,15 @@ const ProjetPage = () => {
       }
 
       const url = isEditing 
-        ? `http://localhost:4000/api/projets/${editingId}`
-        : 'http://localhost:4000/api/projets';
+        ? `${import.meta.env.VITE_API_URL || ''}/api/projets/${editingId}`
+        : `${import.meta.env.VITE_API_URL || ''}/api/projets`;
         
       const method = isEditing ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
         method: method,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
         body: formData
       });
@@ -341,10 +341,10 @@ const ProjetPage = () => {
           for (const file of formGalleryFiles) {
             const galData = new FormData();
             galData.append('image', file);
-            await fetch(`http://localhost:4000/api/projets/${projectId}/gallery`, {
+            await fetch(`${import.meta.env.VITE_API_URL || ''}/api/projets/${projectId}/gallery`, {
               method: 'POST',
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${localStorage.getItem('userToken')}`
               },
               body: galData
             });
@@ -366,10 +366,10 @@ const ProjetPage = () => {
   const handleDeleteProjet = async (id) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce projet définitivement ?')) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/projets/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/projets/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         }
       });
       const data = await res.json();
@@ -387,11 +387,11 @@ const ProjetPage = () => {
   const handleSaveHeroConfig = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:4000/api/content-sections/projets_page', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/projets_page`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
         body: JSON.stringify({
           sectionName: 'projets_page',
@@ -426,7 +426,7 @@ const ProjetPage = () => {
 
   const getProjectImage = (path) => {
     if (!path) return 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80&w=800';
-    return path.startsWith('http') ? path : `http://localhost:4000${path}`;
+    return path.startsWith('http') ? path : `${import.meta.env.VITE_API_URL || ''}${path}`;
   };
 
   const filteredProjets = projets.filter(p => {

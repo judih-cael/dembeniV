@@ -139,7 +139,7 @@ const createPublication = asyncHandler(async (req, res) => {
     if (req.body.isUrgent !== undefined) req.body.isUrgent = req.body.isUrgent === 'true';
 
     if (req.file) {
-        req.body.image = `/public/uploads/actualites/${req.file.filename}`;
+        req.body.image = req.file.path;
     } else {
         // Remove empty or placeholder fields from body so default schema values apply
         if (req.body.image === '' || req.body.image === 'null') {
@@ -208,7 +208,7 @@ const updatePublication = asyncHandler(async (req, res) => {
         if (publication.image) {
             deleteOldImage(publication.image);
         }
-        req.body.image = `/public/uploads/actualites/${req.file.filename}`;
+        req.body.image = req.file.path;
     } else if (req.body.image === 'null' || req.body.image === '' || req.body.deleteImage === 'true') {
         // User explicitly wants to delete the image
         if (publication.image) {

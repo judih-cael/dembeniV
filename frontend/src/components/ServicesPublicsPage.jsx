@@ -169,7 +169,7 @@ const ServicesPublicsPage = () => {
     setLoading(true);
     try {
       // 1. Fetch Services
-      const resServices = await fetch("http://localhost:4000/api/services");
+      const resServices = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/services`);
       if (resServices.ok) {
         const data = await resServices.json();
         if (data.success && Array.isArray(data.data)) {
@@ -178,7 +178,7 @@ const ServicesPublicsPage = () => {
       }
 
       // 2. Fetch CMS content
-      const resCms = await fetch("http://localhost:4000/api/content-sections/services_page");
+      const resCms = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/services_page`);
       if (resCms.ok) {
         const data = await resCms.json();
         if (data.success && data.data) {
@@ -218,14 +218,14 @@ const ServicesPublicsPage = () => {
     setLoadingNews(true);
     try {
       // Fetch news under category "Services publics" or general admin announcements
-      const resNews = await fetch("http://localhost:4000/api/publications?category=Services publics&status=published");
+      const resNews = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?category=Services publics&status=published`);
       if (resNews.ok) {
         const data = await resNews.json();
         if (data.success && Array.isArray(data.data)) {
           setNews(data.data);
         } else {
           // fallback to general news if category is empty
-          const resAll = await fetch("http://localhost:4000/api/publications?status=published");
+          const resAll = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?status=published`);
           if (resAll.ok) {
             const dataAll = await resAll.json();
             if (dataAll.success && Array.isArray(dataAll.data)) {
@@ -383,7 +383,7 @@ const ServicesPublicsPage = () => {
   const handleEditServiceClick = (service) => {
     setEditingService(service);
     setImageFile(null);
-    setImagePreview(service.img ? (service.img.startsWith('/public/') ? `http://localhost:4000${service.img}` : service.img) : "");
+    setImagePreview(service.img ? (service.img.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${service.img}` : service.img) : "");
     setServiceForm({
       title: service.title || "",
       desc: service.desc || "",
@@ -464,14 +464,14 @@ const ServicesPublicsPage = () => {
       let response;
       if (editingService) {
         // Update service
-        response = await fetch(`http://localhost:4000/api/services/${editingService._id}`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/services/${editingService._id}`, {
           method: "PUT",
           headers: headers,
           body: formData
         });
       } else {
         // Create service
-        response = await fetch("http://localhost:4000/api/services", {
+        response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/services`, {
           method: "POST",
           headers: headers,
           body: formData
@@ -505,7 +505,7 @@ const ServicesPublicsPage = () => {
 
     const token = localStorage.getItem('userToken');
     try {
-      const response = await fetch(`http://localhost:4000/api/services/${serviceId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/services/${serviceId}`, {
         method: "DELETE",
         headers: {
           'Authorization': `Bearer ${token}`
@@ -526,7 +526,7 @@ const ServicesPublicsPage = () => {
   const handleToggleVisibility = async (service) => {
     const token = localStorage.getItem('userToken');
     try {
-      const response = await fetch(`http://localhost:4000/api/services/${service._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/services/${service._id}`, {
         method: "PUT",
         headers: {
           'Content-Type': 'application/json',
@@ -576,7 +576,7 @@ const ServicesPublicsPage = () => {
 
     try {
       // First try to put (update)
-      let response = await fetch("http://localhost:4000/api/content-sections/services_page", {
+      let response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/services_page`, {
         method: "PUT",
         headers: {
           'Content-Type': 'application/json',
@@ -587,7 +587,7 @@ const ServicesPublicsPage = () => {
 
       // If 404, section doesn't exist, we POST it to create it!
       if (response.status === 404) {
-        response = await fetch("http://localhost:4000/api/content-sections", {
+        response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
@@ -835,7 +835,7 @@ const ServicesPublicsPage = () => {
 
                     <div className="sp-card-img-wrap">
                       <img 
-                        src={s.img ? (s.img.startsWith('/public/') ? `http://localhost:4000${s.img}` : s.img) : "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"} 
+                        src={s.img ? (s.img.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${s.img}` : s.img) : "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"} 
                         alt={s.title} 
                         className="sp-card-img" 
                       />
@@ -1007,7 +1007,7 @@ const ServicesPublicsPage = () => {
                   <div key={n._id} className="sp-service-card" style={{ height: '100%' }}>
                     <div style={{ height: '180px', position: 'relative' }}>
                       <img 
-                        src={n.image ? (n.image.startsWith('/public/') ? `http://localhost:4000${n.image}` : n.image) : "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800"} 
+                        src={n.image ? (n.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${n.image}` : n.image) : "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800"} 
                         alt={n.title} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                       />
@@ -1094,7 +1094,7 @@ const ServicesPublicsPage = () => {
 
             <div className="sp-detail-banner">
               <img 
-                src={selectedService.img ? (selectedService.img.startsWith('/public/') ? `http://localhost:4000${selectedService.img}` : selectedService.img) : "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"} 
+                src={selectedService.img ? (selectedService.img.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${selectedService.img}` : selectedService.img) : "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"} 
                 alt={selectedService.title} 
                 className="sp-detail-banner-img" 
               />

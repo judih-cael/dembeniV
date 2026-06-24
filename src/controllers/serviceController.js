@@ -75,7 +75,7 @@ const createService = asyncHandler(async (req, res) => {
 
     let imagePath = '';
     if (req.file) {
-        imagePath = `/public/uploads/services/${req.file.filename}`;
+        imagePath = req.file.path;
     } else if (req.body.img) {
         imagePath = req.body.img;
     }
@@ -121,7 +121,7 @@ const updateService = asyncHandler(async (req, res) => {
     let imagePath = service.img;
     if (req.file) {
         deleteLocalFile(service.img);
-        imagePath = `/public/uploads/services/${req.file.filename}`;
+        imagePath = req.file.path;
     } else if (req.body.img !== undefined) {
         imagePath = req.body.img;
     }

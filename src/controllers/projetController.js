@@ -64,7 +64,7 @@ const createProjet = asyncHandler(async (req, res) => {
 
     let imagePath = '';
     if (req.file) {
-        imagePath = `/public/uploads/projets/${req.file.filename}`;
+        imagePath = req.file.path;
     } else if (req.body.image) {
         imagePath = req.body.image;
     }
@@ -113,7 +113,7 @@ const updateProjet = asyncHandler(async (req, res) => {
     let imagePath = projet.image;
     if (req.file) {
         deleteLocalFile(projet.image);
-        imagePath = `/public/uploads/projets/${req.file.filename}`;
+        imagePath = req.file.path;
     } else if (req.body.image !== undefined) {
         imagePath = req.body.image;
     }
@@ -159,7 +159,7 @@ const addGalleryImage = asyncHandler(async (req, res) => {
         throw new Error('Aucun fichier image fourni');
     }
 
-    const galleryPath = `/public/uploads/projets/${req.file.filename}`;
+    const galleryPath = req.file.path;
     projet.gallery.push(galleryPath);
     await projet.save();
 

@@ -117,7 +117,7 @@ const Login = () => {
     setMsg({ type: '', text: '' });
     try {
       const email = (forgotEmail || '').trim().toLowerCase();
-      const res = await axios.post('http://localhost:4000/api/auth/forgot-password', { email });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/auth/forgot-password`, { email });
       
       setMsg({ 
         type: 'success', 
@@ -140,7 +140,7 @@ const Login = () => {
     setMsg({ type: '', text: '' });
     try {
       const email = (forgotEmail || '').trim().toLowerCase();
-      const res = await axios.post('http://localhost:4000/api/auth/verify-otp', {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/auth/verify-otp`, {
         email,
         code: resetCode
       });
@@ -169,7 +169,7 @@ const Login = () => {
 
     try {
       const email = (forgotEmail || '').trim().toLowerCase();
-      const res = await axios.post('http://localhost:4000/api/auth/reset-password', {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/auth/reset-password`, {
         email,
         code: resetCode,
         newPassword
@@ -212,7 +212,7 @@ const Login = () => {
         return;
       }
 
-      const res = await axios.post('http://localhost:4000/api/auth/login', { email, password });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/auth/login`, { email, password });
       const { token, ...userData } = res.data.data;
       
       login(token, userData);
@@ -259,7 +259,7 @@ const Login = () => {
       fd.append('quartier',   (registerData.quartier || '').trim());
       if (profileFile) fd.append('profileImage', profileFile);
 
-      await axios.post('http://localhost:4000/api/auth/register', fd, {
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/auth/register`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

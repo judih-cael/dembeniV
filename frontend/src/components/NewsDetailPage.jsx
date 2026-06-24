@@ -5,6 +5,7 @@ import {
   MessageCircle, Mail, Link2, Download, FileText, 
   Image as ImageIcon, ChevronLeft, ChevronRight, BookOpen
 } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUrl';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1541888062862-23f2ec4da240?auto=format&fit=crop&q=80&w=1200';
 
@@ -25,14 +26,14 @@ const NewsDetailPage = () => {
     setCopied(false);
     
     // Fetch target publication
-    fetch(`http://localhost:4000/api/publications/${slug}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications/${slug}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.success && data.data) {
           setNews(data.data);
           
           // Fetch all publications for navigation & related
-          fetch('http://localhost:4000/api/publications?status=published')
+          fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?status=published`)
             .then(res => res.json())
             .then(allData => {
               if (allData && allData.success && Array.isArray(allData.data)) {
@@ -112,7 +113,7 @@ const NewsDetailPage = () => {
     : '';
 
   const coverImageSrc = news.image 
-    ? (news.image.startsWith('/public/') ? `http://localhost:4000${news.image}` : news.image) 
+    ? getImageUrl(news.image, FALLBACK_IMG)
     : FALLBACK_IMG;
 
   return (
@@ -321,7 +322,7 @@ const NewsDetailPage = () => {
                     className="related-item-hover"
                   >
                     <div style={{ width: '64px', height: '64px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden' }}>
-                      <img src={item.image ? (item.image.startsWith('/public/') ? `http://localhost:4000${item.image}` : item.image) : FALLBACK_IMG} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={getImageUrl(item.image, FALLBACK_IMG)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = FALLBACK_IMG; }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <h5 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#334155', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>

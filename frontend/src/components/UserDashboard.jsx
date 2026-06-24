@@ -78,10 +78,10 @@ const UserDashboard = () => {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
       
-      const resDemandes = await axios.get('http://localhost:4000/api/demandes', { headers });
+      const resDemandes = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/demandes`, { headers });
       setDemandes(resDemandes.data.data);
 
-      const resNotifs = await axios.get('http://localhost:4000/api/demandes/notifications', { headers });
+      const resNotifs = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/demandes/notifications`, { headers });
       setNotifications(resNotifs.data.data);
     } catch (err) {
       console.error('Erreur lors du chargement des données', err);
@@ -104,7 +104,7 @@ const UserDashboard = () => {
     setLoading(true);
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.post('http://localhost:4000/api/demandes', newDemande, { headers });
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/demandes`, newDemande, { headers });
       addToast('Votre demande administrative a bien été transmise.', 'success');
       setNewDemande({ title: '', description: '', type: 'Acte de naissance' });
       setModalOpen(null);
@@ -119,7 +119,7 @@ const UserDashboard = () => {
   const handleMarkAsRead = async () => {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
-      await axios.put('http://localhost:4000/api/demandes/notifications/read', {}, { headers });
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/demandes/notifications/read`, {}, { headers });
       // Refresh list locally
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (err) {

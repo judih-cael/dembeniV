@@ -17,7 +17,7 @@ const SantePage = () => {
     const fetchSanteNews = async () => {
       try {
         setIsLoadingNews(true);
-        const response = await fetch('http://localhost:4000/api/publications?category=Santé %26 Solidarité&status=published');
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/publications?category=Santé %26 Solidarité&status=published`);
         if (response.ok) {
           const data = await response.json();
           if (data && data.success && Array.isArray(data.data)) {
@@ -34,7 +34,7 @@ const SantePage = () => {
     const fetchSanteSection = async () => {
       try {
         setIsLoadingSection(true);
-        const res = await fetch('http://localhost:4000/api/content-sections/sante_page');
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content-sections/sante_page`);
         if (res.ok) {
           const data = await res.json();
           if (data && data.success && data.data) {
@@ -605,7 +605,7 @@ const SantePage = () => {
               {newsList.map((pub) => (
                 <div key={pub._id} className="sante-service-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '20px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                   <div className="sante-card-img-wrap" style={{ height: '200px', position: 'relative' }}>
-                    <img src={pub.image ? (pub.image.startsWith('/public/') ? `http://localhost:4000${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800'} alt={pub.title} className="sante-card-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={pub.image ? (pub.image.startsWith('/public/') ? `${import.meta.env.VITE_API_URL || ''}${pub.image}` : pub.image) : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800'} alt={pub.title} className="sante-card-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     {pub.isUrgent && (
                       <span style={{ position: 'absolute', top: '12px', right: '12px', background: '#ef4444', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800 }}>🚨 ALERTE</span>
                     )}
