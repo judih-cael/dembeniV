@@ -14,22 +14,33 @@ const connectDB = require('./config/db');
 
 const app = express();
 
-// ── Fichiers statiques (AVANT tout le reste — pas besoin de DB) ────────────────
-// En local : projet/public/
-// Sur Vercel (production) : /tmp/public/ (uploads ephémères)
-const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+// ==============================
+// STATIC FILES
+// ==============================
 
-app.use('/public', express.static(path.join(__dirname, '..', 'public'), {
-    maxAge: '1d',
-    etag: true,
-}));
+const isVercel =
+    process.env.VERCEL === '1' ||
+    process.env.VERCEL === 'true';
+
+app.use(
+    '/public',
+    express.static(path.join(__dirname, '..', 'public'), {
+        maxAge: '1d',
+        etag: true,
+    })
+);
 
 if (isVercel) {
-    // Sur Vercel, les uploads vont dans /tmp qui est accessible en écriture
-    app.use('/public/uploads', express.static(path.join(os.tmpdir(), 'public', 'uploads')));
+    app.use(
+        '/public/uploads',
+        express.static(path.join(os.tmpdir(), 'public', 'uploads'))
+    );
 }
 
-// ── Connexion DB sur les routes API uniquement ─────────────────────────────────
+// ==============================
+// DATABASE
+// ==============================
+
 app.use('/api', async (req, res, next) => {
     try {
         await connectDB();
@@ -39,35 +50,44 @@ app.use('/api', async (req, res, next) => {
     }
 });
 
-// ── Sécurité ───────────────────────────────────────────────────────────────────
-app.use(helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-}));
+// ==============================
+// SECURITY
+// ==============================
 
-// ── CORS ───────────────────────────────────────────────────────────────────────
+app.use(
+    helmet({
+        contentSecurityPolicy: false,
+        crossOriginEmbedderPolicy: false,
+    })
+);
+
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:4000',
 ];
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Non autorisé par CORS'));
-        }
-    },
-    credentials: true,
-}));
 
-// ── Body parsers ───────────────────────────────────────────────────────────────
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (
+                !origin ||
+                allowedOrigins.includes(origin) ||
+                origin.endsWith('.vercel.app')
+            ) {
+                callback(null, true);
+            } else {
+                callback(new Error('Non autorisé par CORS'));
+            }
+        },
+        credentials: true,
+    })
+);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// ── Correctif req.query (read-only dans Express récent) ────────────────────────
 app.use((req, res, next) => {
     Object.defineProperty(req, 'query', {
         value: { ...req.query },
@@ -86,31 +106,71 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// ── Rate Limiting ──────────────────────────────────────────────────────────────
+// ==============================
+// RATE LIMIT
+// ==============================
+
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
-    message: { message: 'Trop de requêtes effectuées depuis cette IP, veuillez réessayer plus tard.' },
+    message: {
+        message:
+            'Trop de requêtes effectuées depuis cette IP, veuillez réessayer plus tard.',
+    },
     standardHeaders: true,
     legacyHeaders: false,
 });
+
 app.use('/api', apiLimiter);
 
-// ── Routes API ─────────────────────────────────────────────────────────────────
-app.use('/api', routes);
+// ==============================
+// HOME ROUTE
+// ==============================
 
-// ── 404 ────────────────────────────────────────────────────────────────────────
-app.use((req, res, next) => {
-    res.status(404).json({ message: `Route introuvable : ${req.method} ${req.originalUrl}` });
+app.get('/', (req, res) => {
+    res.status(200).json({
+        success: true,
+        application: 'Backend API Dembeni',
+        version: '1.0.0',
+        status: 'Running',
+        api: '/api',
+        health: '/api/health',
+    });
 });
 
-// ── Gestionnaire global d'erreurs ─────────────────────────────────────────────
+// ==============================
+// API ROUTES
+// ==============================
+
+app.use('/api', routes);
+
+// ==============================
+// 404
+// ==============================
+
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route introuvable : ${req.method} ${req.originalUrl}`,
+    });
+});
+
+// ==============================
+// GLOBAL ERROR HANDLER
+// ==============================
+
 app.use((err, req, res, next) => {
-    const statusCode = err.status || (res.statusCode === 200 ? 500 : res.statusCode);
-    console.error(`[Error] ${err.message}`, err.stack);
-    res.status(statusCode).json({
-        message: err.message || 'Une erreur serveur est survenue.',
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    console.error(err);
+
+    res.status(err.status || 500).json({
+        success: false,
+        message:
+            err.message ||
+            'Une erreur serveur est survenue.',
+        stack:
+            process.env.NODE_ENV === 'production'
+                ? undefined
+                : err.stack,
     });
 });
 
