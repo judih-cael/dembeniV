@@ -1,9 +1,12 @@
 require('dotenv').config();
+const connectDB = require('./config/db');
+
+const ContentSection = require('./models/ContentSection'); // Let's use the defined model if available, or keep the on-the-fly model. Let's see: ContentSection is already defined in models/ContentSection.js. Let's just import mongoose and connectDB.
 const mongoose = require('mongoose');
 
-const ContentSection = mongoose.model('ContentSection', new mongoose.Schema({}, { strict: false }));
+const ContentSection = mongoose.models.ContentSection || mongoose.model('ContentSection', new mongoose.Schema({}, { strict: false }));
 
-mongoose.connect(process.env.MONGO_URI).then(async () => {
+connectDB().then(async () => {
   const result = await ContentSection.findOneAndUpdate(
     { key: 'sante_page' },
     {

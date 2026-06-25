@@ -1,10 +1,10 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
+const connectDB = require('./config/db');
 const Role = require('./models/Role');
 
 const seedRoles = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await connectDB();
         
         console.log('🔄 Nettoyage et initialisation des rôles...');
         

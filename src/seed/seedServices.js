@@ -383,12 +383,11 @@ const defaultServices = [
   }
 ];
 
+const connectDB = require('../config/db');
+
 const seedServices = async () => {
   try {
-    if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI non définie dans les variables d'environnement.");
-    }
-    await mongoose.connect(process.env.MONGO_URI);
+    await connectDB();
     console.log('🔄 Nettoyage et initialisation des services avec les champs premium...');
     
     // Clean old services
