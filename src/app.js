@@ -61,34 +61,44 @@ app.use(
     })
 );
 
-const clientUrl = process.env.CLIENT_URL || 'https://dembeni-v-i5sd.vercel.app';
-const allowedOrigins = [clientUrl];
+const clientUrl = process.env.CLIENT_URL?.trim();
+const additionalClientUrls = process.env.CLIENT_URLS
+    ? process.env.CLIENT_URLS.split(',').map((url) => url.trim()).filter(Boolean)
+    : [];
+const allowedOrigins = new Set([
+    clientUrl,
+    ...additionalClientUrls,
+].filter(Boolean));
 
 if (process.env.NODE_ENV !== 'production') {
-    allowedOrigins.push(
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://localhost:4000'
-    );
+    allowedOrigins.add('http://localhost:5173');
+    allowedOrigins.add('http://localhost:3000');
+    allowedOrigins.add('http://localhost:4000');
 }
 
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (!origin) {
-                // Allow requests without origin (Postman, server-to-server, same-site requests)
-                return callback(null, true);
-            }
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin) {
+            return callback(null, true);
+        }
 
-            if (allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
+        if (allowedOrigins.has(origin)) {
+            return callback(null, true);
+        }
 
-            callback(new Error('Non autorisé par CORS'));
-        },
-        credentials: true,
-    })
-);
+        if (origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+
+        callback(new Error('Non autorisé par CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
