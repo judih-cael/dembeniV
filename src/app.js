@@ -9,38 +9,15 @@ const hpp = require('hpp');
 const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+
 const routes = require('./routes');
 const connectDB = require('./config/db');
 
 const app = express();
 
-// ==============================
-// STATIC FILES
-// ==============================
-
-const isVercel =
-    process.env.VERCEL === '1' ||
-    process.env.VERCEL === 'true';
-
-app.use(
-    '/public',
-    express.static(path.join(__dirname, '..', 'public'), {
-        maxAge: '1d',
-        etag: true,
-    })
-);
-
-if (isVercel) {
-    app.use(
-        '/public/uploads',
-        express.static(path.join(os.tmpdir(), 'public', 'uploads'))
-    );
-}
-
-// ==============================
-// DATABASE
-// ==============================
-
+/* =========================
+   DATABASE
+========================= */
 app.use('/api', async (req, res, next) => {
     try {
         await connectDB();
@@ -50,10 +27,9 @@ app.use('/api', async (req, res, next) => {
     }
 });
 
-// ==============================
-// SECURITY
-// ==============================
-
+/* =========================
+   SECURITY HEADERS
+========================= */
 app.use(
     helmet({
         contentSecurityPolicy: false,
@@ -61,58 +37,48 @@ app.use(
     })
 );
 
-const clientUrl = process.env.CLIENT_URL?.trim();
-const additionalClientUrls = process.env.CLIENT_URLS
-    ? process.env.CLIENT_URLS.split(',').map((url) => url.trim()).filter(Boolean)
-    : [];
-const allowedOrigins = new Set([
-    clientUrl,
-    ...additionalClientUrls,
-].filter(Boolean));
+/* =========================
+   CORS - PRODUCTION FIX 100%
+========================= */
 
-if (process.env.NODE_ENV !== 'production') {
-    allowedOrigins.add('http://localhost:5173');
-    allowedOrigins.add('http://localhost:3000');
-    allowedOrigins.add('http://localhost:4000');
-}
+const allowedOrigins = [
+    'https://dembeni-v-i5sd-hgn26psxy-dembeni.vercel.app'
+];
 
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin) {
-            return callback(null, true);
-        }
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            // allow Postman / server-to-server
+            if (!origin) return callback(null, true);
 
-        if (allowedOrigins.has(origin)) {
-            return callback(null, true);
-        }
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
 
-        if (origin.endsWith('.vercel.app')) {
-            return callback(null, true);
-        }
+            return callback(new Error('Not allowed by CORS'));
+        },
 
-        callback(new Error('Non autorisé par CORS'));
-    },
-    credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-};
+        credentials: true,
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 
+        allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'X-Requested-With'
+        ]
+    })
+);
+
+// Handle preflight requests
+app.options('*', cors());
+
+/* =========================
+   GLOBAL MIDDLEWARES
+========================= */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-
-app.use((req, res, next) => {
-    Object.defineProperty(req, 'query', {
-        value: { ...req.query },
-        writable: true,
-        configurable: true,
-        enumerable: true,
-    });
-    next();
-});
 
 app.use(mongoSanitize());
 app.use(hpp());
@@ -122,71 +88,62 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// ==============================
-// RATE LIMIT
-// ==============================
-
+/* =========================
+   RATE LIMIT
+========================= */
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
     message: {
-        message:
-            'Trop de requêtes effectuées depuis cette IP, veuillez réessayer plus tard.',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
+        message: 'Trop de requêtes, réessayez plus tard.'
+    }
 });
 
 app.use('/api', apiLimiter);
 
-// ==============================
-// HOME ROUTE
-// ==============================
+/* =========================
+   STATIC FILES
+========================= */
+app.use(
+    '/public',
+    express.static(path.join(__dirname, '..', 'public'))
+);
 
+/* =========================
+   HOME ROUTE
+========================= */
 app.get('/', (req, res) => {
-    res.status(200).json({
+    res.json({
         success: true,
-        application: 'Backend API Dembeni',
-        version: '1.0.0',
-        status: 'Running',
-        api: '/api',
-        health: '/api/health',
+        message: 'Backend API Dembeni running',
+        status: 'OK'
     });
 });
 
-// ==============================
-// API ROUTES
-// ==============================
-
+/* =========================
+   ROUTES
+========================= */
 app.use('/api', routes);
 
-// ==============================
-// 404
-// ==============================
-
+/* =========================
+   404 HANDLER
+========================= */
 app.use((req, res) => {
     res.status(404).json({
         success: false,
-        message: `Route introuvable : ${req.method} ${req.originalUrl}`,
+        message: 'Route introuvable'
     });
 });
 
-// ==============================
-// GLOBAL ERROR HANDLER
-// ==============================
-
+/* =========================
+   ERROR HANDLER
+========================= */
 app.use((err, req, res, next) => {
     console.error(err);
 
-    res.status(err.status || 500).json({
+    res.status(500).json({
         success: false,
-        message:
-            err.message ||
-            'Une erreur serveur est survenue.',
-        stack:
-            process.env.NODE_ENV === 'production'
-                ? undefined
-                : err.stack,
+        message: err.message || 'Erreur serveur'
     });
 });
 
