@@ -61,25 +61,30 @@ app.use(
     })
 );
 
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:4000',
-    process.env.CLIENT_URL,
-].filter(Boolean);
+const clientUrl = process.env.CLIENT_URL || 'https://dembeni-v-i5sd.vercel.app';
+const allowedOrigins = [clientUrl];
+
+if (process.env.NODE_ENV !== 'production') {
+    allowedOrigins.push(
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost:4000'
+    );
+}
 
 app.use(
     cors({
         origin: (origin, callback) => {
-            if (
-                !origin ||
-                allowedOrigins.includes(origin) ||
-                origin.endsWith('.vercel.app')
-            ) {
-                callback(null, true);
-            } else {
-                callback(new Error('Non autorisé par CORS'));
+            if (!origin) {
+                // Allow requests without origin (Postman, server-to-server, same-site requests)
+                return callback(null, true);
             }
+
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            callback(new Error('Non autorisé par CORS'));
         },
         credentials: true,
     })
