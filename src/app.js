@@ -1,59 +1,26 @@
 const express = require('express');
-const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
-const os = require('os');
 const helmet = require('helmet');
 const compression = require('compression');
 const hpp = require('hpp');
 const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+
 const routes = require('./routes');
 const connectDB = require('./config/db');
 
 const app = express();
 
-// ==============================
-// STATIC FILES
-// ==============================
+/* =========================
+   DATABASE CONNECTION
+========================= */
+connectDB();
 
-const isVercel =
-    process.env.VERCEL === '1' ||
-    process.env.VERCEL === 'true';
-
-app.use(
-    '/public',
-    express.static(path.join(__dirname, '..', 'public'), {
-        maxAge: '1d',
-        etag: true,
-    })
-);
-
-if (isVercel) {
-    app.use(
-        '/public/uploads',
-        express.static(path.join(os.tmpdir(), 'public', 'uploads'))
-    );
-}
-
-// ==============================
-// DATABASE
-// ==============================
-
-app.use('/api', async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
-
-// ==============================
-// SECURITY
-// ==============================
-
+/* =========================
+   SECURITY HEADERS
+========================= */
 app.use(
     helmet({
         contentSecurityPolicy: false,
@@ -61,58 +28,38 @@ app.use(
     })
 );
 
-const clientUrl = process.env.CLIENT_URL?.trim();
-const additionalClientUrls = process.env.CLIENT_URLS
-    ? process.env.CLIENT_URLS.split(',').map((url) => url.trim()).filter(Boolean)
-    : [];
-const allowedOrigins = new Set([
-    clientUrl,
-    ...additionalClientUrls,
-].filter(Boolean));
+/* =========================
+   CORS FINAL (NO "*")
+========================= */
 
-if (process.env.NODE_ENV !== 'production') {
-    allowedOrigins.add('http://localhost:5173');
-    allowedOrigins.add('http://localhost:3000');
-    allowedOrigins.add('http://localhost:4000');
-}
+const allowedOrigins = [
+    'https://dembeni-v-i5sd-hgn26psxy-dembeni.vercel.app'
+];
 
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin) {
-            return callback(null, true);
-        }
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
 
-        if (allowedOrigins.has(origin)) {
-            return callback(null, true);
-        }
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
 
-        if (origin.endsWith('.vercel.app')) {
-            return callback(null, true);
-        }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
 
-        callback(new Error('Non autorisé par CORS'));
-    },
-    credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-};
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+    next();
+});
 
+/* =========================
+   GLOBAL MIDDLEWARES
+========================= */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-
-app.use((req, res, next) => {
-    Object.defineProperty(req, 'query', {
-        value: { ...req.query },
-        writable: true,
-        configurable: true,
-        enumerable: true,
-    });
-    next();
-});
 
 app.use(mongoSanitize());
 app.use(hpp());
@@ -122,71 +69,62 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// ==============================
-// RATE LIMIT
-// ==============================
-
+/* =========================
+   RATE LIMIT
+========================= */
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
     message: {
-        message:
-            'Trop de requêtes effectuées depuis cette IP, veuillez réessayer plus tard.',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
+        message: 'Too many requests, try again later.'
+    }
 });
 
 app.use('/api', apiLimiter);
 
-// ==============================
-// HOME ROUTE
-// ==============================
+/* =========================
+   STATIC FILES
+========================= */
+app.use(
+    '/public',
+    express.static(path.join(__dirname, '..', 'public'))
+);
 
+/* =========================
+   ROUTES
+========================= */
+app.use('/api', routes);
+
+/* =========================
+   HOME ROUTE
+========================= */
 app.get('/', (req, res) => {
-    res.status(200).json({
+    res.json({
         success: true,
-        application: 'Backend API Dembeni',
-        version: '1.0.0',
-        status: 'Running',
-        api: '/api',
-        health: '/api/health',
+        message: 'Dembeni API running',
+        status: 'OK'
     });
 });
 
-// ==============================
-// API ROUTES
-// ==============================
-
-app.use('/api', routes);
-
-// ==============================
-// 404
-// ==============================
-
+/* =========================
+   404 HANDLER
+========================= */
 app.use((req, res) => {
     res.status(404).json({
         success: false,
-        message: `Route introuvable : ${req.method} ${req.originalUrl}`,
+        message: 'Route not found'
     });
 });
 
-// ==============================
-// GLOBAL ERROR HANDLER
-// ==============================
-
+/* =========================
+   ERROR HANDLER
+========================= */
 app.use((err, req, res, next) => {
     console.error(err);
 
-    res.status(err.status || 500).json({
+    res.status(500).json({
         success: false,
-        message:
-            err.message ||
-            'Une erreur serveur est survenue.',
-        stack:
-            process.env.NODE_ENV === 'production'
-                ? undefined
-                : err.stack,
+        message: err.message || 'Server error'
     });
 });
 
