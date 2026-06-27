@@ -8,7 +8,7 @@ import axios from 'axios'
 
 // Configurer Axios globalement
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
-axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = false;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
