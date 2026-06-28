@@ -131,39 +131,42 @@ const buildResetEmailHtml = (firstname, lastname, code) => `
 </html>
 `;
 
+const throwHttpError = (message, statusCode, res) => {
+    if (res) res.status(statusCode);
+    const err = new Error(message);
+    err.statusCode = statusCode;
+    err.status = statusCode;
+    throw err;
+};
+
 // ─── REGISTER ─────────────────────────────────────────────────────────────────
 const registerUser = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, quartier } = req.body;
 
     // ── Required fields check ─────────────────────────────────────────────────
     if (!firstname?.trim() || !lastname?.trim() || !email?.trim() || !password) {
-        res.status(400);
-        throw new Error('Veuillez remplir tous les champs obligatoires (prénom, nom, e-mail, mot de passe).');
+        throwHttpError('Veuillez remplir tous les champs obligatoires (prénom, nom, e-mail, mot de passe).', 400, res);
     }
 
     // ── Name validation (letters, spaces, hyphens, apostrophes only) ──────────
     const nameRegex = /^[a-zA-ZÀ-ÿ\s'\-]+$/;
     if (!nameRegex.test(firstname.trim())) {
-        res.status(400);
-        throw new Error('Le prénom ne doit contenir que des lettres et des espaces.');
+        throwHttpError('Le prénom ne doit contenir que des lettres et des espaces.', 400, res);
     }
     if (!nameRegex.test(lastname.trim())) {
-        res.status(400);
-        throw new Error('Le nom ne doit contenir que des lettres et des espaces.');
+        throwHttpError('Le nom ne doit contenir que des lettres et des espaces.', 400, res);
     }
 
     // ── Email format validation ───────────────────────────────────────────────
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!emailRegex.test(email.trim())) {
-        res.status(400);
-        throw new Error('Format d\'adresse e-mail invalide.');
+        throwHttpError('Format d\'adresse e-mail invalide.', 400, res);
     }
 
     // ── Password strength validation ──────────────────────────────────────────
     const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-#])[A-Za-z\d@$!%*?&_\-#]{8,}$/;
     if (!pwdRegex.test(password)) {
-        res.status(400);
-        throw new Error('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&_-#).');
+        throwHttpError('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&_-#).', 400, res);
     }
 
     // ── Email uniqueness check ────────────────────────────────────────────────
@@ -174,8 +177,7 @@ const registerUser = asyncHandler(async (req, res) => {
             const fs = require('fs');
             fs.unlink(req.file.path, () => {});
         }
-        res.status(400);
-        throw new Error('Cette adresse e-mail est déjà associée à un compte existant.');
+        throwHttpError('Cette adresse e-mail est déjà associée à un compte existant.', 400, res);
     }
 
     // ── Profile image path (Multer) ───────────────────────────────────────────
@@ -209,8 +211,7 @@ const registerUser = asyncHandler(async (req, res) => {
             }
         });
     } else {
-        res.status(400);
-        throw new Error("Données d'inscription invalides.");
+        throwHttpError("Données d'inscription invalides.", 400, res);
     }
 });
 
@@ -225,8 +226,7 @@ const loginUser = asyncHandler(async (req, res) => {
     authLog('[AUTH][LOGIN] Email normalisé:', normalizedEmail);
 
     if (!normalizedEmail || typeof password !== 'string' || !password.trim()) {
-        res.status(400);
-        throw new Error('Veuillez fournir un e-mail et un mot de passe valides.');
+        throwHttpError('Veuillez fournir un e-mail et un mot de passe valides.', 400, res);
     }
 
     const user = await User.findOne({ email: normalizedEmail });
@@ -237,12 +237,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
     if (user && passwordMatch) {
         if (user.role === 'citoyen' && user.status !== 'approved') {
-            res.status(401);
-            throw new Error(
-                user.status === 'pending'
-                    ? "Votre compte est toujours en attente de validation par l'administration."
-                    : "Votre demande d'inscription a été refusée par l'administration."
-            );
+            const msg = user.status === 'pending'
+                ? "Votre compte est toujours en attente de validation par l'administration."
+                : "Votre demande d'inscription a été refusée par l'administration.";
+            throwHttpError(msg, 401, res);
         }
         const token = generateToken(user._id);
         authLog('[AUTH][LOGIN] JWT généré pour userId:', String(user._id));
@@ -258,8 +256,7 @@ const loginUser = asyncHandler(async (req, res) => {
             }
         });
     } else {
-        res.status(401);
-        throw new Error('Identifiants de connexion invalides');
+        throwHttpError('Identifiants de connexion invalides', 401, res);
     }
 });
 
