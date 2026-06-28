@@ -101,8 +101,11 @@ app.use(
     })
 );
 
-// Ensure preflight requests are handled for all routes
-app.options('*', cors(corsOptions));
+// Note: do not call app.options with '*' here — some serverless routers
+// (path-to-regexp versions used by Vercel) fail to parse '*' and crash.
+// The global CORS middleware `app.use(cors(corsOptions))` above already
+// handles preflight requests. Avoid adding app.options('*', ...) to keep
+// compatibility with serverless environments.
 
 if (isVercel) {
     app.use(
