@@ -15,49 +15,15 @@ const connectDB = require('./config/db');
 const app = express();
 
 // ==============================
-// STATIC FILES
-// ==============================
-
-const isVercel =
-    process.env.VERCEL === '1' ||
-    process.env.VERCEL === 'true';
-
-app.use(
-    '/public',
-    express.static(path.join(__dirname, '..', 'public'), {
-        maxAge: '1d',
-        etag: true,
-    })
-);
-
-if (isVercel) {
-    app.use(
-        '/public/uploads',
-        express.static(path.join(os.tmpdir(), 'public', 'uploads'))
-    );
-}
-
-// ==============================
-// DATABASE
-// ==============================
-
-app.use('/api', async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
-
-// ==============================
-// SECURITY
+// SECURITY & CORS
 // ==============================
 
 app.use(
     helmet({
         contentSecurityPolicy: false,
         crossOriginEmbedderPolicy: false,
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+        crossOriginOpenerPolicy: false,
     })
 );
 
@@ -98,6 +64,52 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// ==============================
+// STATIC FILES
+// ==============================
+
+const isVercel =
+    process.env.VERCEL === '1' ||
+    process.env.VERCEL === 'true';
+
+app.use('/public', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+});
+
+app.use(
+    '/public',
+    express.static(path.join(__dirname, '..', 'public'), {
+        maxAge: '1d',
+        etag: true,
+    })
+);
+
+if (isVercel) {
+    app.use(
+        '/public/uploads',
+        express.static(path.join(os.tmpdir(), 'public', 'uploads'))
+    );
+}
+
+// ==============================
+// DATABASE
+// ==============================
+
+app.use('/api', async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// ==============================
+// PARSERS & SANITIZATION
+// ==============================
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -177,7 +189,12 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error(err);
 
-    res.status(err.status || 500).json({
+    const statusCode =
+        err.statusCode ||
+        err.status ||
+        (res.statusCode >= 400 ? res.statusCode : 500);
+
+    res.status(statusCode).json({
         success: false,
         message:
             err.message ||
