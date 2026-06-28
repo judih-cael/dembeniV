@@ -229,13 +229,22 @@ const loginUser = asyncHandler(async (req, res) => {
         throwHttpError('Veuillez fournir un e-mail et un mot de passe valides.', 400, res);
     }
 
-    const user = await User.findOne({ email: normalizedEmail });
-    authLog('[AUTH][LOGIN] Utilisateur trouvé:', user ? `${user._id} (${user.role})` : 'NON');
+    try {
+        const user = await User.findOne({ email: normalizedEmail });
+        authLog('[AUTH][LOGIN] Utilisateur trouvé:', user ? `${user._id} (${user.role})` : 'NON');
 
-    const passwordMatch = user ? await user.matchPassword(password) : false;
-    authLog('[AUTH][LOGIN] bcrypt.compare():', passwordMatch);
+        let passwordMatch = false;
+        if (user) {
+            try {
+                passwordMatch = await user.matchPassword(password);
+            } catch (bcryptErr) {
+                console.error('[AUTH][LOGIN] bcrypt error:', bcryptErr);
+                passwordMatch = false;
+            }
+        }
+        authLog('[AUTH][LOGIN] bcrypt.compare():', passwordMatch);
 
-    if (user && passwordMatch) {
+        if (user && passwordMatch) {
         if (user.role === 'citoyen' && user.status !== 'approved') {
             const msg = user.status === 'pending'
                 ? "Votre compte est toujours en attente de validation par l'administration."
@@ -264,6 +273,11 @@ const loginUser = asyncHandler(async (req, res) => {
         });
     } else {
         throwHttpError('Identifiants de connexion invalides', 401, res);
+    }
+    } catch (err) {
+        console.error('[AUTH][LOGIN] Erreur inattendue :', err);
+        res.status(500);
+        throw new Error('Erreur serveur lors de la tentative de connexion.');
     }
 });
 
