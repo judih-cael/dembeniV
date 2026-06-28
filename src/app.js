@@ -56,6 +56,14 @@ const corsOptions = {
             return callback(null, true);
         }
 
+        // Allow common render/app hostnames (in case env wasn't configured)
+        try {
+            const lower = origin.toLowerCase();
+            if (lower.includes('onrender.com') || lower.includes('render.com') || lower.includes('dembeni')) {
+                return callback(null, true);
+            }
+        } catch (e) {}
+
         callback(new Error('Non autorisé par CORS'));
     },
     credentials: true,
@@ -84,8 +92,17 @@ app.use(
     express.static(path.join(__dirname, '..', 'public'), {
         maxAge: '1d',
         etag: true,
+        setHeaders: (res, filePath) => {
+            // Ensure static file responses include cross-origin headers so
+            // images can be loaded from other origins (frontend hosted elsewhere)
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        }
     })
 );
+
+// Ensure preflight requests are handled for all routes
+app.options('*', cors(corsOptions));
 
 if (isVercel) {
     app.use(

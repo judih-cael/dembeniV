@@ -242,7 +242,14 @@ const loginUser = asyncHandler(async (req, res) => {
                 : "Votre demande d'inscription a été refusée par l'administration.";
             throwHttpError(msg, 401, res);
         }
-        const token = generateToken(user._id);
+        let token;
+        try {
+            token = generateToken(user._id);
+        } catch (e) {
+            console.error('[AUTH][LOGIN] Erreur génération JWT :', e.message);
+            res.status(500);
+            throw new Error('Erreur de configuration du serveur (JWT non configuré). Veuillez contacter l\'administration.');
+        }
         authLog('[AUTH][LOGIN] JWT généré pour userId:', String(user._id));
         res.status(200).json({
             success: true,
