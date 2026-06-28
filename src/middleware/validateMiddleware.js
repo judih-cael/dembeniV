@@ -28,8 +28,8 @@ const authValidators = {
     register: [
         body('email').isEmail().withMessage('Adresse email invalide.').normalizeEmail(),
         body('password').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères.'),
-        body('firstName').trim().notEmpty().withMessage('Le prénom est requis.'),
-        body('lastName').trim().notEmpty().withMessage('Le nom de famille est requis.'),
+        body('firstname').trim().notEmpty().withMessage('Le prénom est requis.'),
+        body('lastname').trim().notEmpty().withMessage('Le nom de famille est requis.'),
         body('address').optional().trim(),
         body('phone').optional().trim(),
     ],
@@ -47,7 +47,7 @@ const authValidators = {
     resetPassword: [
         body('email').isEmail().withMessage('Adresse email invalide.').normalizeEmail(),
         body('code').isLength({ min: 6, max: 6 }).withMessage('Le code OTP doit être composé de 6 chiffres.'),
-        body('password').isLength({ min: 6 }).withMessage('Le nouveau mot de passe doit contenir au moins 6 caractères.')
+        body('newPassword').isLength({ min: 6 }).withMessage('Le nouveau mot de passe doit contenir au moins 6 caractères.')
     ]
 };
 
