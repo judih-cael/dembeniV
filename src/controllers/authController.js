@@ -222,60 +222,90 @@ const loginUser = asyncHandler(async (req, res) => {
     const receivedEmail = typeof email === 'string' ? email : '';
     const normalizedEmail = receivedEmail.toLowerCase().trim();
 
+    // Debug logs (enabled when AUTH_DEBUG=true or NODE_ENV=development)
     authLog('[AUTH][LOGIN] Email reçu:', receivedEmail);
     authLog('[AUTH][LOGIN] Email normalisé:', normalizedEmail);
 
     if (!normalizedEmail || typeof password !== 'string' || !password.trim()) {
+        // Bad request: missing or invalid credentials
         throwHttpError('Veuillez fournir un e-mail et un mot de passe valides.', 400, res);
     }
 
     try {
-        const user = await User.findOne({ email: normalizedEmail });
+        // Ensure password field is available for bcrypt comparison even if the schema later hides it by default
+        const user = await User.findOne({ email: normalizedEmail }).select('+password');
         authLog('[AUTH][LOGIN] Utilisateur trouvé:', user ? `${user._id} (${user.role})` : 'NON');
 
+        // Default to false; only set to true when bcrypt comparison succeeds
         let passwordMatch = false;
         if (user) {
             try {
-                passwordMatch = await user.matchPassword(password);
+                // `matchPassword` uses bcrypt.compare under the hood; await its result
+                passwordMatch = !!(await user.matchPassword(password));
             } catch (bcryptErr) {
+                // Log bcrypt-specific errors but do not leak details to the client
                 console.error('[AUTH][LOGIN] bcrypt error:', bcryptErr);
                 passwordMatch = false;
             }
         }
-        authLog('[AUTH][LOGIN] bcrypt.compare():', passwordMatch);
+        authLog('[AUTH][LOGIN] Mot de passe correspondant:', passwordMatch);
 
-        if (user && passwordMatch) {
+        // Authentication failed: preserve original HTTP 401 status
+        if (!user || !passwordMatch) {
+            throwHttpError('Identifiants de connexion invalides', 401, res);
+        }
+
+        // Authorization / status checks (keeps existing logic)
         if (user.role === 'citoyen' && user.status !== 'approved') {
             const msg = user.status === 'pending'
                 ? "Votre compte est toujours en attente de validation par l'administration."
                 : "Votre demande d'inscription a été refusée par l'administration.";
             throwHttpError(msg, 401, res);
         }
+
+        // Generate JWT only after successful authentication
         let token;
         try {
             token = generateToken(user._id);
         } catch (e) {
             console.error('[AUTH][LOGIN] Erreur génération JWT :', e.message);
+            // Real server configuration error -> respond 500
             res.status(500);
             throw new Error('Erreur de configuration du serveur (JWT non configuré). Veuillez contacter l\'administration.');
         }
+
         authLog('[AUTH][LOGIN] JWT généré pour userId:', String(user._id));
-        res.status(200).json({
-            success: true,
-            message: 'Connexion réussie',
-            data: {
-                _id: user._id, firstname: user.firstname, lastname: user.lastname,
-                email: user.email, role: user.role, status: user.status,
-                phone: user.phone, address: user.address, quartier: user.quartier,
-                profileImage: user.profileImage,
-                token
-            }
-        });
-    } else {
-        throwHttpError('Identifiants de connexion invalides', 401, res);
-    }
+
+        // Build response payload explicitly (do not include password)
+        const responseData = {
+            _id: user._id,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            phone: user.phone,
+            address: user.address,
+            quartier: user.quartier,
+            profileImage: user.profileImage,
+            token
+        };
+
+        return res.status(200).json({ success: true, message: 'Connexion réussie', data: responseData });
+
     } catch (err) {
+        // Preserve known HTTP errors (thrown via throwHttpError) so client receives correct status code
         console.error('[AUTH][LOGIN] Erreur inattendue :', err);
+        if (err && (err.statusCode || err.status)) {
+            // If an HTTP error was intentionally thrown earlier, rethrow it so the global error handler returns it unchanged
+            const statusCode = err.statusCode || err.status;
+            if (statusCode && typeof statusCode === 'number') {
+                res.status(statusCode);
+                throw err; // express-async-handler will forward this
+            }
+        }
+
+        // Otherwise, it's a genuine server error -> return 500
         res.status(500);
         throw new Error('Erreur serveur lors de la tentative de connexion.');
     }
